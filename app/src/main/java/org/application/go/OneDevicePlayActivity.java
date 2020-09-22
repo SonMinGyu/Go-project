@@ -1,6 +1,5 @@
 package org.application.go;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -24,47 +23,28 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import org.application.go.Model.GameModel;
 import org.application.go.Model.Go_point;
-import org.application.go.Model.ReplayPosition;
-import org.application.go.Model.UserModel;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+// 디바이스 하나에서 같이 하는 플레이
+public class OneDevicePlayActivity extends AppCompatActivity {
 
     GridView gridView;
     MyAdapter adapter;
-    //int order = 1; // order가1 면 흑돌차례, 2면 백돌차례
-    int order = 1;
-    int myOrder = 0;
+    int order = 1; // order가1 면 흑돌차례, 2면 백돌차례
     int image[] = new int[19*19];
     ArrayList<Go_point> go_points;
-    ArrayList<Go_point> go_points2;
     EnemyStoneStack enemyStoneStack;
     DeleteStack deleteStack;
     DeleteStack deleteStack1;
     DeleteStack liveOrDie;
     int DeathFlag = 0; // 0은 아무것도아님, 1은 죽은돌, 2는 산돌, 연결되어 있는 돌 다 검사해서 활로가 없으면 liveOrDie 스택에 1주고 있으면 2줌
     boolean liveFlag = false; // liveOrDie 스택을 모두 검사해서 하나라도 2 즉 활로가 있어서 산 돌이있으면 true반환
-    int deathWhiteStones = 0;
+    int deathwhiteStones = 0;
     int deathBlackStones = 0;
     boolean isStart = false;
     boolean isFinish = false;
-    boolean fbIsFinish = false;
-    String stHostName;
-    String stParticipantName;
-    int numOfPlayer = 1;
 
     EnemyStoneStack canPutEnemyStoneStack;
     DeleteStack canPutDeleteStack;
@@ -77,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
     TextView deathWhiteCount;
     TextView deathBlackCount;
     Button startButton;
-    TextView hostName;
-    TextView participantName;
 
     String whiteCount;
     String blackCount;
@@ -127,9 +105,6 @@ public class MainActivity extends AppCompatActivity {
     int whiteTimerCount = 6;
     TextView black_chanceText;
     TextView white_chanceText;
-    String stBlackTimer = "00:30:00";
-    String stWhiteTimer = "00:30:00";
-    String stHostUid;
 
     //계가를 위한 선언
     DeleteStack emptyStoneStack;
@@ -139,27 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
     //Button button;
     String gameKey;
-    String hLevel;
-    String pLevel;
-    String hUid;
-    String pUid;
-    int hColor;
-    int pColor;
-    String hName;
-    String pName;
-    //String hLevel = bringHostLevel();
-    //String pLevel = bringParticipantLevel();
-    //GameModel thisGameModel = getThisGameModel();
-    int numHLevel;
-    int numPLevel;
-
-    TextView gameTitle;
-    TextView blackUserName;
-    TextView whiteUserName;
-
-    boolean startFirst = false;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //button = (Button) findViewById(R.id.button);
+        gameKey = getIntent().getExtras().getString("gamekey");
+
         turnText = (TextView) findViewById(R.id.main_turn_textView);
         deathWhiteCount = (TextView) findViewById(R.id.main_black_score);
         deathBlackCount = (TextView) findViewById(R.id.main_white_score);
@@ -186,20 +142,9 @@ public class MainActivity extends AppCompatActivity {
         black_chanceText = (TextView) findViewById(R.id.main_black_chanceText);
         white_chanceText = (TextView) findViewById(R.id.main_white_chanceText);
 
-        gameTitle = (TextView) findViewById(R.id.main_gameTitle);
-        blackUserName = (TextView) findViewById(R.id.main_black_userName);
-        whiteUserName = (TextView) findViewById(R.id.main_white_userName);
-
-        hostName = (TextView) findViewById(R.id.main_hostName);
-        participantName = (TextView) findViewById(R.id.main_participantName);
-
         goQueue = new Queue(19*19);
 
-        gameKey = getIntent().getExtras().getString("gamekey");
-
         setIcon(image);
-
-        gameTitle.setText(getIntent().getExtras().getString("gameTitle"));
 
         go_points = new ArrayList<>();
 
@@ -211,14 +156,9 @@ public class MainActivity extends AppCompatActivity {
             sideSetting(go_points, i);
         }
 
-        FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                .child("board").setValue(go_points);
-
-        //final List<Go_point> go_points2 = new ArrayList<>();
-
         turnText.setText("대국 준비");
 
-        whiteCount = "죽은 백돌: " + deathWhiteStones + " 개";
+        whiteCount = "죽은 백돌: " + deathwhiteStones + " 개";
         blackCount = "죽은 흑돌: " + deathBlackStones + " 개";
         deathWhiteCount.setText(whiteCount);
         deathBlackCount.setText(blackCount);
@@ -227,79 +167,31 @@ public class MainActivity extends AppCompatActivity {
         gridView = (GridView) findViewById(R.id.gridView);
         gridView.setAdapter(adapter);
 
-        //go_points2 = new ArrayList<>();
-        FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                .child("board").addValueEventListener(new ValueEventListener() {
+        /*
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                go_points.clear();
-                for(DataSnapshot item :dataSnapshot.getChildren())
+            public void onClick(View view) {
+                if(order == 1)
                 {
-                    go_points.add(item.getValue(Go_point.class));
+                    order = 2;
                 }
-
-                for(int i = 0; i < 19*19; i++)
+                else
                 {
-                    resetIcon(image, i);
+                    order = 1;
                 }
-
-                for(int i = 0; i < 19*19; i++)
-                {
-                    if(go_points.get(i).isExistence_stone())
-                    {
-                        bringStoneData(image, go_points.get(i).getStone_color(), go_points.get(i).getStone_position());
-                    }
-                }
-
-                gridView.setAdapter(adapter);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
 
+         */
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isStart)
-                {
-                    return;
-                }
-
-                if(getIntent().getExtras().getString("hostUid").equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
-                {
-                    if(numOfPlayer <= 1)
-                    {
-                        Toast.makeText(getApplicationContext(), "아직 다른 플레이어가 입장하지 않았습니다!", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    else
-                    {
-                        Map<String, Object> taskMap = new HashMap<String, Object>();
-                        taskMap.put("start", true);
-                        FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey")).updateChildren(taskMap);
-                    }
-                }
-                else
-                {
-                    Toast.makeText(getApplicationContext(), "방장이 시작할 때까지 기다려주세요!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                //isStart = true;
-
-                /// 옮길것
-                //turnText.setText("흑돌 턴 입니다");
-                //blackTime = calculateTime(blacktimerText.getText().toString());
-                //blackTimer = new BlackTimer(blackTime, 1000);
-                //blackTimer.start();
-                ///
-
-                //myOrder = decisionOrder();
-
-
+                turnText.setText("흑돌 턴 입니다");
+                isStart = true;
+                blackTime = calculateTime(blacktimerText.getText().toString());
+                blackTimer = new BlackTimer(blackTime, 1000);
+                blackTimer.start();
             }
         });
 
@@ -311,11 +203,6 @@ public class MainActivity extends AppCompatActivity {
 
                 offTimer();
 
-                Map<String, Object> taskMap = new HashMap<String, Object>();
-                taskMap.put("finish", true);
-                FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey")).updateChildren(taskMap);
-
-
                 emptyStoneStack = new DeleteStack(19*19);
                 inspectionStack = new DeleteStack(19*19);
 
@@ -323,7 +210,9 @@ public class MainActivity extends AppCompatActivity {
                 emptySearch(go_points, emptyStoneStack);
                 for(int i = emptyStoneStack.getTop() + 1; i > 0; i--) {
                     getEmptyStone(go_points, emptyStoneStack, inspectionStack);
+                    //
                     countHouse(go_points, inspectionStack);
+                    //
                 }
 
                 if(blackHouseCount == whiteHouseCount)
@@ -354,40 +243,12 @@ public class MainActivity extends AppCompatActivity {
 
                 order = 1;
                 deathBlackStones = 0;
-                deathWhiteStones = 0;
+                deathwhiteStones = 0;
                 deathWhiteCount.setText(whiteCount);
                 deathBlackCount.setText(blackCount);
                 turnText.setText("복기 시작");
                 setIcon(replayImage);
                 replay_go_points = new ArrayList<>();
-
-                //final List<ReplayPosition> replayPositions = new ArrayList<>();
-                FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                        .child("replay").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        //replayPositions.clear();
-                        for(DataSnapshot item :dataSnapshot.getChildren())
-                        {
-                            //replayPositions.add(item.getValue(ReplayPosition.class));
-                            goQueue.insert(item.getValue(ReplayPosition.class).getReplayPosition());
-                        }
-
-                        /*
-                        for(int i = 0; i < replayPositions.size(); i++)
-                        {
-                            goQueue.insert(replayPositions.get(i).getReplayPosition());
-                        }
-
-                         */
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
 
                 for(int i = 0; i < 19*19; i++)
                 {
@@ -427,374 +288,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        // 차례가 바뀐것이 firebase에 업데이트되면 그 정보를 받아와서 차례 업데이트
-        final List<GameModel> gameModels = new ArrayList<>();
-        FirebaseDatabase.getInstance().getReference().child("Game").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                gameModels.clear();
-                for(DataSnapshot item :snapshot.getChildren()) {
-                    if (item.getValue(GameModel.class).getGameKey().equals(getIntent().getExtras().getString("gamekey"))) {
-                        order = item.getValue(GameModel.class).getOrder();
-                        isStart = item.getValue(GameModel.class).isStart();
-                        deathBlackStones = item.getValue(GameModel.class).getDeathBlackStones();
-                        deathWhiteStones = item.getValue(GameModel.class).getDeathWhiteStones();
-                        stBlackTimer = item.getValue(GameModel.class).getBlackTimer();
-                        stWhiteTimer = item.getValue(GameModel.class).getWhiteTimer();
-                        stHostUid = item.getValue(GameModel.class).getHostUid();
-                        fbIsFinish = item.getValue(GameModel.class).getFinish();
-                        stHostName = item.getValue(GameModel.class).getHostName();
-                        stParticipantName = item.getValue(GameModel.class).getParticipantName();
-                        numOfPlayer = item.getValue(GameModel.class).getNumberOfUsers();
-                    }
-                }
-
-                hostName.setText("Player1: " + stHostName);
-                participantName.setText("Player2: " + stParticipantName);
-
-                if(fbIsFinish)
-                {
-                    finishButton.callOnClick();
-                    System.out.println("mainmainmain 실행");
-                    return;
-                }
-
-                if(order == 1)
-                {
-                    turnText.setText("흑돌 턴 입니다");
-                    String whiteCount = "죽은 백돌: " + deathWhiteStones + " 개";
-                    String blackCount = "죽은 흑돌: " + deathBlackStones + " 개";
-                    deathWhiteCount.setText(whiteCount);
-                    deathBlackCount.setText(blackCount);
-                }
-                else if(order == 2)
-                {
-                    turnText.setText("백돌 턴 입니다");
-                    String whiteCount = "죽은 백돌: " + deathWhiteStones + " 개";
-                    String blackCount = "죽은 흑돌: " + deathBlackStones + " 개";
-                    deathWhiteCount.setText(whiteCount);
-                    deathBlackCount.setText(blackCount);
-                }
-
-                if(isStart && !startFirst)
-                {
-                    Toast.makeText(getApplicationContext(), "대국 시작!", Toast.LENGTH_SHORT).show();
-                    //turnText.setText("흑돌 턴 입니다");
-                    //blackTime = calculateTime(blacktimerText.getText().toString());
-                    blackTime = calculateTime(stBlackTimer);
-                    blackTimer = new BlackTimer(blackTime, 1000);
-                    blackTimer.start();
-                    myOrder = decisionOrder();
-                    startFirst = true;
-                }
-                else {
-
-                    // 4가지 경우 생각해서 해야함
-                    if (order == 2 && isStart && !whiteFirstTimerEnd && !blackFirstTimerEnd) {
-                        offTimer();
-
-                        //blackTime = calculateTime(blacktimerText.getText().toString());
-                        int millisMinute = (int) (blackTmepMillisecond / 1000) % 3600;
-                        int millisSecond = (int) millisMinute % 60;
-                        String st = Integer.toString((int) (blackTmepMillisecond / 1000) / 3600) + ":"
-                                + Integer.toString(millisMinute / 60) + ":" + Integer.toString(millisSecond);
-
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(stHostUid)) {
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("blackTimer", st);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                    .updateChildren(taskMap);
-                        }
-                        //blacktimerText.setText(st);
-                        //blacktimerText.setText(stBlackTimer);
-
-                        //whiteTime = calculateTime(whitetimerText.getText().toString());
-                        whiteTime = calculateTime(stWhiteTimer);
-                        whiteTimer = new WhiteTimer(whiteTime, 1000);
-                        whiteTimer.start();
-                    } else if (order == 1 && isStart && !whiteFirstTimerEnd && !blackFirstTimerEnd) {
-                        offTimer();
-
-                        //whiteTime = calculateTime(whitetimerText.getText().toString());
-                        int millisMinute = (int) (whiteTmepMillisecond / 1000) % 3600;
-                        int millisSecond = (int) millisMinute % 60;
-                        String st = Integer.toString((int) (whiteTmepMillisecond / 1000) / 3600) + ":"
-                                + Integer.toString(millisMinute / 60) + ":" + Integer.toString(millisSecond);
-
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(stHostUid)) {
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("whiteTimer", st);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                    .updateChildren(taskMap);
-                        }
-                        //whitetimerText.setText(st);
-                        //whitetimerText.setText(stWhiteTimer);
-
-                        //blackTime = calculateTime(blacktimerText.getText().toString());
-                        blackTime = calculateTime(stBlackTimer);
-                        blackTimer1 = new BlackTimer(blackTime, 1000);
-                        blackTimer1.start();
-                        isFirstTurn = false;
-                    }
-
-                    if (order == 2 && isStart && whiteFirstTimerEnd && !blackFirstTimerEnd) {
-                        offTimer();
-
-                        int millisMinute = (int) (blackTmepMillisecond / 1000) % 3600;
-                        int millisSecond = (int) millisMinute % 60;
-                        String st = Integer.toString((int) (blackTmepMillisecond / 1000) / 3600) + ":"
-                                + Integer.toString(millisMinute / 60) + ":" + Integer.toString(millisSecond);
-
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(stHostUid)) {
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("blackTimer", st);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                    .updateChildren(taskMap);
-                        }
-                        //blacktimerText.setText(st);
-                        //blacktimerText.setText(stBlackTimer);
-
-                        //whiteTime = calculateTime(whitetimerText.getText().toString());
-                        whiteTime = calculateTime(stWhiteTimer);
-                        lastWhiteTimer = new WhiteTimer(whiteTime, 1000);
-                        lastWhiteTimer.start();
-                    } else if (order == 1 && isStart && whiteFirstTimerEnd && !blackFirstTimerEnd) {
-                        offTimer();
-
-                        String st = "0:0:10";
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(stHostUid)) {
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("whiteTimer", st);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                    .updateChildren(taskMap);
-                        }
-                        whitetimerText.setText("0:0:10");
-
-                        //blackTime = calculateTime(blacktimerText.getText().toString());
-                        blackTime = calculateTime(stBlackTimer);
-                        blackTimer1 = new BlackTimer(blackTime, 1000);
-                        blackTimer1.start();
-                    }
-
-                    if (order == 2 && isStart && !whiteFirstTimerEnd && blackFirstTimerEnd) {
-                        offTimer();
-
-                        String st = "0:0:10";
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(stHostUid)) {
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("blackTimer", st);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                    .updateChildren(taskMap);
-                        }
-                        blacktimerText.setText("0:0:10");
-
-                        //whiteTime = calculateTime(whitetimerText.getText().toString());
-                        whiteTime = calculateTime(stWhiteTimer);
-                        whiteTimer = new WhiteTimer(whiteTime, 1000);
-                        whiteTimer.start();
-                    } else if (order == 1 && isStart && !whiteFirstTimerEnd && blackFirstTimerEnd) {
-                        offTimer();
-
-                        int millisMinute = (int) (whiteTmepMillisecond / 1000) % 3600;
-                        int millisSecond = (int) millisMinute % 60;
-                        String st = Integer.toString((int) (whiteTmepMillisecond / 1000) / 3600) + ":"
-                                + Integer.toString(millisMinute / 60) + ":" + Integer.toString(millisSecond);
-
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(stHostUid)) {
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("whiteTimer", st);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                    .updateChildren(taskMap);
-                        }
-                        //whitetimerText.setText(st);
-                        //whitetimerText.setText(stWhiteTimer);
-
-                        //blackTime = calculateTime(blacktimerText.getText().toString());
-                        blackTime = calculateTime(stBlackTimer);
-                        lastBlackTimer = new BlackTimer(blackTime, 1000);
-                        lastBlackTimer.start();
-                    }
-
-                    if (order == 2 && isStart && whiteFirstTimerEnd && blackFirstTimerEnd) {
-                        offTimer();
-
-                        String st = "0:0:10";
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(stHostUid)) {
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("blackTimer", st);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                    .updateChildren(taskMap);
-                        }
-                        blacktimerText.setText("0:0:10");
-
-                        //whiteTime = calculateTime(whitetimerText.getText().toString());
-                        whiteTime = calculateTime(stWhiteTimer);
-                        lastWhiteTimer = new WhiteTimer(whiteTime, 1000);
-                        lastWhiteTimer.start();
-                    } else if (order == 1 && isStart && whiteFirstTimerEnd && blackFirstTimerEnd) {
-                        offTimer();
-
-                        String st = "0:0:10";
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(stHostUid)) {
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("whiteTimer", st);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                    .updateChildren(taskMap);
-                        }
-                        whitetimerText.setText("0:0:10");
-
-                        //blackTime = calculateTime(blacktimerText.getText().toString());
-                        blackTime = calculateTime(stBlackTimer);
-                        lastBlackTimer = new BlackTimer(blackTime, 1000);
-                        lastBlackTimer.start();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-
-    public int decisionOrder()
-    {
-        //final GameModel gameModel = new GameModel();
-        FirebaseDatabase.getInstance().getReference().child("Game").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot item :snapshot.getChildren())
-                {
-                    if(item.getValue(GameModel.class).getGameKey().equals(getIntent().getExtras().getString("gamekey")))
-                    {
-                        hLevel = item.getValue(GameModel.class).getHostLevel();
-                        pLevel = item.getValue(GameModel.class).getParticipantLevel();
-                        hUid = item.getValue(GameModel.class).getHostUid();
-                        pUid = item.getValue(GameModel.class).getParticipantUid();
-                        hColor = item.getValue(GameModel.class).getHostColor();
-                        pColor = item.getValue(GameModel.class).getParticipantColor();
-                        hName = item.getValue(GameModel.class).getHostName();
-                        pName = item.getValue(GameModel.class).getParticipantName();
-                        //gameTitle.setText(item.getValue(GameModel.class).getGameTitle());
-                    }
-
-                    int numHL;
-                    int numPL;
-
-                    if(hLevel.equals("없음"))
-                    {
-                        numHL = 0;
-                    }
-                    else
-                    {
-                        String intHostLevel = hLevel.substring(0, hLevel.length() - 1);
-                        String strHostLevel = hLevel.substring(hLevel.length()-1, hLevel.length());
-
-                        if(strHostLevel.equals("급"))
-                        {
-                            int hostIndex1 = Integer.parseInt(intHostLevel);
-                            numHL = hostIndex1;
-                        }
-                        else
-                        {
-                            int hostIndex2 = Integer.parseInt(intHostLevel) + 10;
-                            numHL = hostIndex2;
-                        }
-                    }
-
-                    if(pLevel.equals("없음"))
-                    {
-                        numPL = 0;
-                    }else
-                    {
-                        String intParticipantLevel = pLevel.substring(0, pLevel.length() - 1);
-                        String strParticipantLevel = pLevel.substring(pLevel.length()-1, pLevel.length());
-
-                        if(strParticipantLevel.equals("급"))
-                        {
-                            int hostIndex1 = Integer.parseInt(intParticipantLevel);
-                            numPL = hostIndex1;
-                        }
-                        else
-                        {
-                            int hostIndex2 = Integer.parseInt(intParticipantLevel) + 10;
-                            numPL = hostIndex2;
-                        }
-                    }
-
-                    if(numHL == numPL)
-                    {
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(hUid))
-                        {
-                            myOrder = hColor;
-                            if(hColor == 1)
-                            {
-                                blackUserName.setText(hName);
-                                whiteUserName.setText(pName);
-                            }
-                            else
-                            {
-                                blackUserName.setText(pName);
-                                whiteUserName.setText(hName);
-                            }
-                        }
-                        else if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(pUid))
-                        {
-                            myOrder = pColor;
-                            if(pColor == 1)
-                            {
-                                blackUserName.setText(pName);
-                                whiteUserName.setText(hName);
-                            }
-                            else
-                            {
-                                blackUserName.setText(hName);
-                                whiteUserName.setText(pName);
-                            }
-                        }
-                    }
-                    else if(numHL < numPL)
-                    {
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(hUid))
-                        {
-                            myOrder = 1;
-                            blackUserName.setText(hName);
-                            whiteUserName.setText(pName);
-                        }
-                        else if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(pUid))
-                        {
-                            myOrder = 2;
-                            blackUserName.setText(hName);
-                            whiteUserName.setText(pName);
-                        }
-                    }
-                    else
-                    {
-                        if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(hUid))
-                        {
-                            myOrder = 2;
-                            blackUserName.setText(pName);
-                            whiteUserName.setText(hName);
-                        }
-                        else if(FirebaseAuth.getInstance().getCurrentUser().getUid().equals(pUid))
-                        {
-                            myOrder = 1;
-                            blackUserName.setText(pName);
-                            whiteUserName.setText(hName);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        return myOrder;
     }
 
     public int calculateTime(String time)
@@ -844,8 +337,8 @@ public class MainActivity extends AppCompatActivity {
             }
             else
             {
-                final LinearLayout linearLayout = (LinearLayout) View.inflate(MainActivity.this, R.layout.activity_black_timeout, null);
-                final AlertDialog.Builder customDialog = new AlertDialog.Builder(MainActivity.this);
+                final LinearLayout linearLayout = (LinearLayout) View.inflate(OneDevicePlayActivity.this, R.layout.activity_black_timeout, null);
+                final AlertDialog.Builder customDialog = new AlertDialog.Builder(OneDevicePlayActivity.this);
                 customDialog.setView(linearLayout)
                         .setCancelable(false)
                         .setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -903,8 +396,8 @@ public class MainActivity extends AppCompatActivity {
             }
             else
             {
-                final LinearLayout linearLayout = (LinearLayout) View.inflate(MainActivity.this, R.layout.activity_white_timeout, null);
-                final AlertDialog.Builder customDialog = new AlertDialog.Builder(MainActivity.this);
+                final LinearLayout linearLayout = (LinearLayout) View.inflate(OneDevicePlayActivity.this, R.layout.activity_white_timeout, null);
+                final AlertDialog.Builder customDialog = new AlertDialog.Builder(OneDevicePlayActivity.this);
                 customDialog.setView(linearLayout)
                         .setCancelable(false)
                         .setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -969,299 +462,405 @@ public class MainActivity extends AppCompatActivity {
             iv.setOnClickListener(new View.OnClickListener() { // 돌을 놓으려고 클릭 할때 실행
                 @Override
                 public void onClick(View view) {
-                    if(myOrder == order) {
-                        if (!isStart) // 대국시작을 누르지 않으면 클릭불가(시작안됨)
+
+                    if(!isStart) // 대국시작을 누르지 않으면 클릭불가(시작안됨)
+                    {
+                        return;
+                    }
+
+                    if(isFinish) // 계가하기를 누르면 클릭불가(종료 됨)
+                    {
+                        return;
+                    }
+
+                    deleteStack = new DeleteStack(19*19);
+                    deleteStack1 = new DeleteStack(19*19);
+                    liveOrDie = new DeleteStack(19*19);
+                    enemyStoneStack = new EnemyStoneStack(4);
+
+                    canPutDeleteStack = new DeleteStack(19*19);
+                    canPutLiveOrDie = new DeleteStack(19*19);
+                    canPutEnemyStoneStack = new EnemyStoneStack(4);
+                    booleanStack = new DeleteStack(4);
+
+                    if(go_points.get(position).isExistence_stone()) // 돌이 있는 곳에 돌을 놓을 경우
+                    {
+                        Toast.makeText(getApplicationContext(),"돌이 있는 곳에는 놓을 수 없습니다!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if(!canPutTheStone(go_points, position)) // 착수금지 체크를 위한 부분
+                    {
+                        if(order == 1) // 실제로 돌을 놓는 것은 아니지만 검사를 위해 돌을 놓았다고 가정, 밑에서 다시 돌을 뺄거임
                         {
-                            return;
+                            go_points.get(position).setExistence_stone(true);
+                            go_points.get(position).setStone_color(order);
+                            go_points.get(position).setStone_position(position);
+                            surroundingSearch(go_points, position);
+                        }
+                        else if(order == 2)
+                        {
+                            go_points.get(position).setExistence_stone(true);
+                            go_points.get(position).setStone_color(order);
+                            go_points.get(position).setStone_position(position);
+                            surroundingSearch(go_points, position);
                         }
 
-                        if (isFinish) // 계가하기를 누르면 클릭불가(종료 됨)
+                        for(int i = 0; i < 19*19; i++) // 돌을 놓은 후 착수 금지 판단을 위해 돌들의 주변 상황을 최신 결과로 업데이트
                         {
-                            return;
+                            surroundingSearch(go_points, i);
                         }
 
-                        deleteStack = new DeleteStack(19 * 19);
-                        deleteStack1 = new DeleteStack(19 * 19);
-                        liveOrDie = new DeleteStack(19 * 19);
-                        enemyStoneStack = new EnemyStoneStack(4);
+                        // 착수금지 원리
+                        // 위에서 터치한 곳에 놓으려는 돌의 정보를 넣고 그 돌로 인해 주변 상대 돌이 죽는게 있나 검사
+                        // 죽는게 있으면 착수 금지가 아닌것이고 죽는 돌이 없으면 착수금지로 판단
 
-                        canPutDeleteStack = new DeleteStack(19 * 19);
-                        canPutLiveOrDie = new DeleteStack(19 * 19);
-                        canPutEnemyStoneStack = new EnemyStoneStack(4);
-                        booleanStack = new DeleteStack(4);
+                        canPutEnemySearch(go_points, position, order);
+                        // 착점 주변에 상대돌 있나 찾는 함수, canPutEnemyStoneStack에 push한다(착수금지에서는 같은 편 돌도 포함)
+                        if(!canPutEnemyStoneStack.empty()) {
+                            for (int j = canPutEnemyStoneStack.getTop() + 1; j > 0; j--) {
+                                canPutGetStone(go_points);
+                                // canPutGetStone에서 canPutEnemyStoneStack에 push된 돌을 하나씩 pop하고
+                                // 그 돌과 연결된 돌이 있다면 그 돌들을 모두 canPutDeleteStack에 push
 
-                        if (go_points.get(position).isExistence_stone()) // 돌이 있는 곳에 돌을 놓을 경우
-                        {
-                            Toast.makeText(getApplicationContext(), "돌이 있는 곳에는 놓을 수 없습니다!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                                if(!canPutDeleteStack.empty()) {
+                                    for (int i = canPutDeleteStack.getTop() + 1; i > 0; i--) {
+                                        int deletePositon = canPutDeleteStack.pop();
+                                        // canPutDeleteStack에 push된 돌들을 하나씩 pop하여 그 돌중에 활로
+                                        // 즉 상하좌우중 빈 공간이 있나 검사, 연결된 돌들 모두 상하좌우에 빈공간이 없으면 죽은돌로 판정
 
-                        if (!canPutTheStone(go_points, position)) // 착수금지 체크를 위한 부분
-                        {
-                            if (order == 1) // 실제로 돌을 놓는 것은 아니지만 검사를 위해 돌을 놓았다고 가정, 밑에서 다시 돌을 뺄거임
-                            {
-                                go_points.get(position).setExistence_stone(true);
-                                go_points.get(position).setStone_color(order);
-                                go_points.get(position).setStone_position(position);
-                                surroundingSearch(go_points, position);
-                            } else if (order == 2) {
-                                go_points.get(position).setExistence_stone(true);
-                                go_points.get(position).setStone_color(order);
-                                go_points.get(position).setStone_position(position);
-                                surroundingSearch(go_points, position);
-                            }
-
-                            for (int i = 0; i < 19 * 19; i++) // 돌을 놓은 후 착수 금지 판단을 위해 돌들의 주변 상황을 최신 결과로 업데이트
-                            {
-                                surroundingSearch(go_points, i);
-                            }
-
-                            // 착수금지 원리
-                            // 위에서 터치한 곳에 놓으려는 돌의 정보를 넣고 그 돌로 인해 주변 상대 돌이 죽는게 있나 검사
-                            // 죽는게 있으면 착수 금지가 아닌것이고 죽는 돌이 없으면 착수금지로 판단
-
-                            canPutEnemySearch(go_points, position, order);
-                            // 착점 주변에 상대돌 있나 찾는 함수, canPutEnemyStoneStack에 push한다(착수금지에서는 같은 편 돌도 포함)
-                            if (!canPutEnemyStoneStack.empty()) {
-                                for (int j = canPutEnemyStoneStack.getTop() + 1; j > 0; j--) {
-                                    canPutGetStone(go_points);
-                                    // canPutGetStone에서 canPutEnemyStoneStack에 push된 돌을 하나씩 pop하고
-                                    // 그 돌과 연결된 돌이 있다면 그 돌들을 모두 canPutDeleteStack에 push
-
-                                    if (!canPutDeleteStack.empty()) {
-                                        for (int i = canPutDeleteStack.getTop() + 1; i > 0; i--) {
-                                            int deletePositon = canPutDeleteStack.pop();
-                                            // canPutDeleteStack에 push된 돌들을 하나씩 pop하여 그 돌중에 활로
-                                            // 즉 상하좌우중 빈 공간이 있나 검사, 연결된 돌들 모두 상하좌우에 빈공간이 없으면 죽은돌로 판정
-
-                                            if (go_points.get(deletePositon).getUpStoneSame() == 0
-                                                    || go_points.get(deletePositon).getLeftStoneSame() == 0
-                                                    || go_points.get(deletePositon).getDownStoneSame() == 0
-                                                    || go_points.get(deletePositon).getRightStoneSame() == 0) {
-                                                canPutDeathFlag = 2; // 상하좌우 중 하나라도 활로(빈공간)이 있다면 canPutDeathFlag를 2로 반환
-                                            } else {
-                                                canPutDeathFlag = 1;// 상하좌우 중 활로(빈공간)가 하나도 없다면 canPutDeathFlag를 1로 반환
-                                            }
-
-                                            canPutLiveOrDie.push(canPutDeathFlag); // 반환한 canPutDeathFlag를 canPutLiveOrDie에 push
+                                        if(go_points.get(deletePositon).getUpStoneSame() == 0
+                                                || go_points.get(deletePositon).getLeftStoneSame() == 0
+                                                || go_points.get(deletePositon).getDownStoneSame() == 0
+                                                || go_points.get(deletePositon).getRightStoneSame() == 0)
+                                        {
+                                            canPutDeathFlag = 2; // 상하좌우 중 하나라도 활로(빈공간)이 있다면 canPutDeathFlag를 2로 반환
                                         }
-                                    }
-
-                                    // canPutLiveOrDie에 push된 값을 pop하여 검사,
-                                    // pop된 값이 2이면 연결된 돌들 중 활로가 있다는것, 따라서 canPutLiveFlag를 true로 반환
-                                    for (int i = canPutLiveOrDie.getTop() + 1; i > 0; i--) {
-                                        int canPutLiveOrDiePop = canPutLiveOrDie.pop();
-                                        if (canPutLiveOrDiePop == 2) {
-                                            canPutLiveFlag = true;
+                                        else
+                                        {
+                                            canPutDeathFlag = 1;// 상하좌우 중 활로(빈공간)가 하나도 없다면 canPutDeathFlag를 1로 반환
                                         }
-                                    }
 
-                                    // canPutLiveFlag가 true면 booleanstack에 1을 push
-                                    if (canPutLiveFlag) {
-                                        booleanStack.push(1);
-                                    } else {
-                                        booleanStack.push(2);
+                                        canPutLiveOrDie.push(canPutDeathFlag); // 반환한 canPutDeathFlag를 canPutLiveOrDie에 push
                                     }
-
-                                    canPutLiveFlag = false;
-                                    canPutDeathFlag = 0;
                                 }
 
+                                // canPutLiveOrDie에 push된 값을 pop하여 검사,
+                                // pop된 값이 2이면 연결된 돌들 중 활로가 있다는것, 따라서 canPutLiveFlag를 true로 반환
+                                for(int i = canPutLiveOrDie.getTop() + 1; i > 0; i--)
+                                {
+                                    int canPutLiveOrDiePop = canPutLiveOrDie.pop();
+                                    if(canPutLiveOrDiePop == 2)
+                                    {
+                                        canPutLiveFlag = true;
+                                    }
+                                }
+
+                                // canPutLiveFlag가 true면 booleanstack에 1을 push
+                                if(canPutLiveFlag)
+                                {
+                                    booleanStack.push(1);
+                                }
+                                else
+                                {
+                                    booleanStack.push(2);
+                                }
+
+                                canPutLiveFlag = false;
+                                canPutDeathFlag = 0;
                             }
 
-                            // booleanStack을 pop하여 검사, push된 값중 2가 있으면 놓으려는 곳 주변에 놓으려는 돌로 인하여 죽는 돌이 발생한다는 뜻
-                            // 따라서 booleanStack에 2가 있다면 cantPut을 0으로 바꿔준다
-                            // 하지만 booleanStack에 2가 없고 1만 있다면 놓으려는 돌로 인해서 죽는 돌이 없다는 뜻이므로 착수금지한 위치이다
-                            int cantPut = 1;
-                            for (int i = booleanStack.getTop() + 1; i > 0; i--) {
-                                if (booleanStack.pop() == 2) {
-                                    cantPut = 0;
+                        }
+
+                        // booleanStack을 pop하여 검사, push된 값중 2가 있으면 놓으려는 곳 주변에 놓으려는 돌로 인하여 죽는 돌이 발생한다는 뜻
+                        // 따라서 booleanStack에 2가 있다면 cantPut을 0으로 바꿔준다
+                        // 하지만 booleanStack에 2가 없고 1만 있다면 놓으려는 돌로 인해서 죽는 돌이 없다는 뜻이므로 착수금지한 위치이다
+                        int cantPut = 1;
+                        for(int i = booleanStack.getTop() + 1; i > 0; i--)
+                        {
+                            if(booleanStack.pop() == 2)
+                            {
+                                cantPut = 0;
+                            }
+                        }
+
+                        if(order == 1) // 실제로 돌을 놓는 것이 아니므로 다시 돌이 없는 설정으로 바꿔준다
+                        {
+                            go_points.get(position).setExistence_stone(false);
+                            go_points.get(position).setStone_color(0);
+                            go_points.get(position).setStone_position(-1);
+                        }
+                        else if(order == 2)
+                        {
+                            go_points.get(position).setExistence_stone(false);
+                            go_points.get(position).setStone_color(0);
+                            go_points.get(position).setStone_position(-1);
+                        }
+
+                        for(int i = 0; i < 19*19; i++) // 연결된 돌들을 검사하는 도중 바뀐 것들을 모두 초기화
+                        {
+                            go_points.get(i).setCanPutFirstSearch(true);
+                            go_points.get(i).setUpStoneSame(0);
+                            go_points.get(i).setLeftStoneSame(0);
+                            go_points.get(i).setDownStoneSame(0);
+                            go_points.get(i).setRightStoneSame(0);
+                        }
+
+                        // 위에서 모든 위치의 설정을 초기화 했으므로 실제 돌이 남아있는 부분은 다시 설정해준다
+                        for(int i = 0; i < 19*19; i++)
+                        {
+                            surroundingSearch(go_points, i); // position i의 위치에 돌이 있다면 상하좌우를 검사하여 정보를 다시 설정
+                            sideSetting(go_points, i); // 맨위와 맨 왼쪽, 맨 아래, 맨 오른쪽의 정보를 설정(벽이 있으므로)
+                        }
+
+                        if(cantPut == 1) // 착수금지 시키고 return하여 종료
+                        {
+                            Toast.makeText(getApplicationContext(),"선택하신 위치는 착수금지인 곳입니다!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
+                    // 착수금지가 아니면 실제로 돌을 놓음
+                    if(order == 1)
+                    {
+                        go_points.get(position).setExistence_stone(true);
+                        go_points.get(position).setStone_color(order);
+                        go_points.get(position).setStone_position(position);
+                        surroundingSearch(go_points, position);
+                        setStone(image, position);
+                        iv.setImageResource(image[position]);
+                        order = 2;
+                        goQueue.insert(position);
+                    }
+                    else if(order == 2)
+                    {
+                        go_points.get(position).setExistence_stone(true);
+                        go_points.get(position).setStone_color(order);
+                        go_points.get(position).setStone_position(position);
+                        surroundingSearch(go_points, position);
+                        setStone(image, position);
+                        iv.setImageResource(image[position]);
+                        order = 1;
+                        goQueue.insert(position);
+                    }
+
+                    for(int i = 0; i < 19*19; i++) // 돌을 놓은 후 돌들의 주변 상황을 최신 결과로 업데이트
+                    {
+                        surroundingSearch(go_points, i);
+                    }
+
+                    enemySearch(go_points, position, order, enemyStoneStack); // 착점 주변에 상대돌 있나 찾는 함수
+                    if(!enemyStoneStack.empty())
+                    {
+                        for (int j = enemyStoneStack.getTop() + 1; j > 0; j--)
+                        {
+                            // 상대돌이 있으면 getStone함수에서 그 돌을 pop해서 연결된 돌들을 모두 deleteStack에 push한다
+                            getStone(go_points, enemyStoneStack, deleteStack);
+
+                            if(!deleteStack.empty()) {
+                                for (int i = deleteStack.getTop() + 1; i > 0; i--) {
+                                    int deletePositon = deleteStack.pop();
+                                    // deleteStack에 push된, 연결되어 있는 돌들을 pop해서 모두 검사
+                                    // 마찬가지로 활로가 있으면 산돌, 활로가 없으면 죽은돌로 판정
+
+                                    if(go_points.get(deletePositon).getUpStoneSame() == 0
+                                            || go_points.get(deletePositon).getLeftStoneSame() == 0
+                                            || go_points.get(deletePositon).getDownStoneSame() == 0
+                                            || go_points.get(deletePositon).getRightStoneSame() == 0)
+                                    {
+                                        DeathFlag = 2; // 활로가 있는 경우 DeathFlag를 2로 반환함
+                                    }
+                                    else
+                                    {
+                                        DeathFlag = 1; // 활로가 없는 경우 DeathFlag를 1로 반환
+                                    }
+
+                                    liveOrDie.push(DeathFlag);
+                                    deleteStack1.push(deletePositon);
                                 }
                             }
 
-                            if (order == 1) // 실제로 돌을 놓는 것이 아니므로 다시 돌이 없는 설정으로 바꿔준다
+                            // liveOrDie에 push된 결과를 pop하여 모든 돌들이 활로가 없으면(즉 DeathFlag가 모두 1이면)
+                            // liveFlag를 false로 반환하여 삭제하는 과정을 진행
+                            for(int i = liveOrDie.getTop() + 1; i > 0; i--)
                             {
-                                go_points.get(position).setExistence_stone(false);
-                                go_points.get(position).setStone_color(0);
-                                go_points.get(position).setStone_position(-1);
-                            } else if (order == 2) {
-                                go_points.get(position).setExistence_stone(false);
-                                go_points.get(position).setStone_color(0);
-                                go_points.get(position).setStone_position(-1);
+                                int liveOrDiePop = liveOrDie.pop();
+                                if(liveOrDiePop == 2)
+                                {
+                                    liveFlag = true;
+                                }
                             }
 
-                            for (int i = 0; i < 19 * 19; i++) // 연결된 돌들을 검사하는 도중 바뀐 것들을 모두 초기화
+                            if(!liveFlag) // 죽은돌들을 삭제하는 과정
                             {
-                                go_points.get(i).setCanPutFirstSearch(true);
+                                for(int i = deleteStack1.getTop() + 1; i > 0; i--)
+                                {
+                                    int popPosition = deleteStack1.pop();
+                                    go_points.get(popPosition).setExistence_stone(false);
+                                    go_points.get(popPosition).setStone_position(popPosition);
+                                    go_points.get(popPosition).setStone_color(0);
+                                    go_points.get(popPosition).setFirstSearch(true);
+                                    go_points.get(popPosition).setUpStoneSame(0);
+                                    go_points.get(popPosition).setLeftStoneSame(0);
+                                    go_points.get(popPosition).setDownStoneSame(0);
+                                    go_points.get(popPosition).setRightStoneSame(0);
+
+                                    if(order == 1)
+                                    {
+                                        deathBlackStones++;
+                                    }
+                                    else
+                                    {
+                                        deathwhiteStones++;
+                                    }
+
+                                    resetIcon(image, popPosition);
+                                    gridView.setAdapter(adapter); // 돌이 놓이면 그림을 다시 그려서 업데이트
+                                }
+                            }
+
+                            for(int i = 0; i < 19*19; i++) // 죽은 돌을 지운후 모든 돌의 검사결과 0으로 초기화
+                            {
+                                go_points.get(i).setFirstSearch(true);
                                 go_points.get(i).setUpStoneSame(0);
                                 go_points.get(i).setLeftStoneSame(0);
                                 go_points.get(i).setDownStoneSame(0);
                                 go_points.get(i).setRightStoneSame(0);
                             }
 
-                            // 위에서 모든 위치의 설정을 초기화 했으므로 실제 돌이 남아있는 부분은 다시 설정해준다
-                            for (int i = 0; i < 19 * 19; i++) {
-                                surroundingSearch(go_points, i); // position i의 위치에 돌이 있다면 상하좌우를 검사하여 정보를 다시 설정
-                                sideSetting(go_points, i); // 맨위와 맨 왼쪽, 맨 아래, 맨 오른쪽의 정보를 설정(벽이 있으므로)
-                            }
-
-                            if (cantPut == 1) // 착수금지 시키고 return하여 종료
+                            for(int i = 0; i < 19*19; i++) // 돌 주변 검사결과를 초기화 한다음 남아있는 돌들의 주변을 검사하여 다시 넣어주기
                             {
-                                Toast.makeText(getApplicationContext(), "선택하신 위치는 착수금지인 곳입니다!", Toast.LENGTH_SHORT).show();
-                                return;
+                                surroundingSearch(go_points, i);
+                                sideSetting(go_points, i);
                             }
-                        }
 
-                        // 착수금지가 아니면 실제로 돌을 놓음
-                        if (order == 1) {
-                            go_points.get(position).setExistence_stone(true);
-                            go_points.get(position).setStone_color(order);
-                            go_points.get(position).setStone_position(position);
-                            surroundingSearch(go_points, position);
-                            setStone(image, position);
-                            iv.setImageResource(image[position]);
-                            order = 2;
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("order", 2);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey")).updateChildren(taskMap);
-                            System.out.println("mainmainmain setOrder");
-                            //goQueue.insert(position);
-                        } else if (order == 2) {
-                            go_points.get(position).setExistence_stone(true);
-                            go_points.get(position).setStone_color(order);
-                            go_points.get(position).setStone_position(position);
-                            surroundingSearch(go_points, position);
-                            setStone(image, position);
-                            iv.setImageResource(image[position]);
-                            order = 1;
-                            Map<String, Object> taskMap = new HashMap<String, Object>();
-                            taskMap.put("order", 1);
-                            FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey")).updateChildren(taskMap);
-                            System.out.println("mainmainmain setOrder");
-                            //goQueue.insert(position);
-                        }
+                            DeathFlag = 0;
+                            liveFlag = false;
 
-                        System.out.println("mainmainmain next");
-                        for (int i = 0; i < 19 * 19; i++) // 돌을 놓은 후 돌들의 주변 상황을 최신 결과로 업데이트
-                        {
-                            surroundingSearch(go_points, i);
-                        }
-
-                        enemySearch(go_points, position, order, enemyStoneStack); // 착점 주변에 상대돌 있나 찾는 함수
-                        if (!enemyStoneStack.empty()) {
-                            for (int j = enemyStoneStack.getTop() + 1; j > 0; j--) {
-                                // 상대돌이 있으면 getStone함수에서 그 돌을 pop해서 연결된 돌들을 모두 deleteStack에 push한다
-                                getStone(go_points, enemyStoneStack, deleteStack);
-
-                                if (!deleteStack.empty()) {
-                                    for (int i = deleteStack.getTop() + 1; i > 0; i--) {
-                                        int deletePositon = deleteStack.pop();
-                                        // deleteStack에 push된, 연결되어 있는 돌들을 pop해서 모두 검사
-                                        // 마찬가지로 활로가 있으면 산돌, 활로가 없으면 죽은돌로 판정
-
-                                        if (go_points.get(deletePositon).getUpStoneSame() == 0
-                                                || go_points.get(deletePositon).getLeftStoneSame() == 0
-                                                || go_points.get(deletePositon).getDownStoneSame() == 0
-                                                || go_points.get(deletePositon).getRightStoneSame() == 0) {
-                                            DeathFlag = 2; // 활로가 있는 경우 DeathFlag를 2로 반환함
-                                        } else {
-                                            DeathFlag = 1; // 활로가 없는 경우 DeathFlag를 1로 반환
-                                        }
-
-                                        liveOrDie.push(DeathFlag);
-                                        deleteStack1.push(deletePositon);
-                                    }
-                                }
-
-                                // liveOrDie에 push된 결과를 pop하여 모든 돌들이 활로가 없으면(즉 DeathFlag가 모두 1이면)
-                                // liveFlag를 false로 반환하여 삭제하는 과정을 진행
-                                for (int i = liveOrDie.getTop() + 1; i > 0; i--) {
-                                    int liveOrDiePop = liveOrDie.pop();
-                                    if (liveOrDiePop == 2) {
-                                        liveFlag = true;
-                                    }
-                                }
-
-                                if (!liveFlag) // 죽은돌들을 삭제하는 과정
+                            if(!deleteStack1.empty())
+                            {
+                                for(int i = deleteStack1.getTop() + 1; i > 0; i--)
                                 {
-                                    for (int i = deleteStack1.getTop() + 1; i > 0; i--) {
-                                        int popPosition = deleteStack1.pop();
-                                        go_points.get(popPosition).setExistence_stone(false);
-                                        go_points.get(popPosition).setStone_position(popPosition);
-                                        go_points.get(popPosition).setStone_color(0);
-                                        go_points.get(popPosition).setFirstSearch(true);
-                                        go_points.get(popPosition).setUpStoneSame(0);
-                                        go_points.get(popPosition).setLeftStoneSame(0);
-                                        go_points.get(popPosition).setDownStoneSame(0);
-                                        go_points.get(popPosition).setRightStoneSame(0);
-
-                                        if (order == 1) {
-                                            deathBlackStones++;
-                                        } else {
-                                            deathWhiteStones++;
-                                        }
-
-                                        resetIcon(image, popPosition);
-                                        gridView.setAdapter(adapter); // 돌이 놓이면 그림을 다시 그려서 업데이트
-                                    }
-                                }
-
-                                for (int i = 0; i < 19 * 19; i++) // 죽은 돌을 지운후 모든 돌의 검사결과 0으로 초기화
-                                {
-                                    go_points.get(i).setFirstSearch(true);
-                                    go_points.get(i).setUpStoneSame(0);
-                                    go_points.get(i).setLeftStoneSame(0);
-                                    go_points.get(i).setDownStoneSame(0);
-                                    go_points.get(i).setRightStoneSame(0);
-                                }
-
-                                for (int i = 0; i < 19 * 19; i++) // 돌 주변 검사결과를 초기화 한다음 남아있는 돌들의 주변을 검사하여 다시 넣어주기
-                                {
-                                    surroundingSearch(go_points, i);
-                                    sideSetting(go_points, i);
-                                }
-
-                                DeathFlag = 0;
-                                liveFlag = false;
-
-                                if (!deleteStack1.empty()) {
-                                    for (int i = deleteStack1.getTop() + 1; i > 0; i--) {
-                                        deleteStack1.pop();
-                                    }
+                                    deleteStack1.pop();
                                 }
                             }
                         }
-
-                        /*
-                        if (order == 1) {
-                            turnText.setText("흑돌 턴 입니다");
-                        } else {
-                            turnText.setText("백돌 턴 입니다");
-                        }
-
-                         */
-
-                        // 죽은 돌들을 카운트 해줌
-                        Map<String, Object> taskMap = new HashMap<String, Object>();
-                        taskMap.put("deathWhiteStones", deathWhiteStones);
-                        taskMap.put("deathBlackStones", deathBlackStones);
-                        FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                                .updateChildren(taskMap);
-                        String whiteCount = "죽은 백돌: " + deathWhiteStones + " 개";
-                        String blackCount = "죽은 흑돌: " + deathBlackStones + " 개";
-                        deathWhiteCount.setText(whiteCount);
-                        deathBlackCount.setText(blackCount);
                     }
 
-                    FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                            .child("board").setValue(go_points);
+                    if(order == 1) {
+                        turnText.setText("흑돌 턴 입니다");
+                    }
+                    else
+                    {
+                        turnText.setText("백돌 턴 입니다");
+                    }
 
-                    ReplayPosition replayPosition = new ReplayPosition();
-                    replayPosition.setReplayPosition(position);
-                    FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
-                            .child("replay").push().setValue(replayPosition);
+                    // 죽은 돌들을 카운트 해줌
+                    String whiteCount = "죽은 백돌: " + deathwhiteStones + " 개";
+                    String blackCount = "죽은 흑돌: " + deathBlackStones + " 개";
+                    deathWhiteCount.setText(whiteCount);
+                    deathBlackCount.setText(blackCount);
+
+                    // 4가지 경우 생각해서 해야함
+                    if(order == 2 && isStart && !whiteFirstTimerEnd && !blackFirstTimerEnd)
+                    {
+                        offTimer();
+
+                        int millisMinute = (int)(blackTmepMillisecond/1000) % 3600;
+                        int millisSecond = (int) millisMinute % 60;
+                        blacktimerText.setText(Integer.toString((int) (blackTmepMillisecond/1000)/3600) + ":"
+                                + Integer.toString(millisMinute/60) + ":" + Integer.toString(millisSecond));
+
+                        whiteTime = calculateTime(whitetimerText.getText().toString());
+                        whiteTimer = new WhiteTimer(whiteTime, 1000);
+                        whiteTimer.start();
+                    }
+                    else if(order == 1 && isStart && !whiteFirstTimerEnd && !blackFirstTimerEnd)
+                    {
+                        offTimer();
+
+                        int millisMinute = (int)(whiteTmepMillisecond/1000) % 3600;
+                        int millisSecond = (int) millisMinute % 60;
+                        whitetimerText.setText(Integer.toString((int) (whiteTmepMillisecond/1000)/3600) + ":"
+                                + Integer.toString(millisMinute/60) + ":" + Integer.toString(millisSecond));
+
+                        blackTime = calculateTime(blacktimerText.getText().toString());
+                        blackTimer1 = new BlackTimer(blackTime, 1000);
+                        blackTimer1.start();
+                        isFirstTurn = false;
+                    }
+
+                    if(order == 2 && isStart && whiteFirstTimerEnd && !blackFirstTimerEnd)
+                    {
+                        offTimer();
+
+                        int millisMinute = (int)(blackTmepMillisecond/1000) % 3600;
+                        int millisSecond = (int) millisMinute % 60;
+                        blacktimerText.setText(Integer.toString((int) (blackTmepMillisecond/1000)/3600) + ":"
+                                + Integer.toString(millisMinute/60) + ":" + Integer.toString(millisSecond));
+
+                        whiteTime = calculateTime(whitetimerText.getText().toString());
+                        lastWhiteTimer = new WhiteTimer(whiteTime, 1000);
+                        lastWhiteTimer.start();
+                    }
+                    else if(order == 1 && isStart && whiteFirstTimerEnd && !blackFirstTimerEnd)
+                    {
+                        offTimer();
+
+                        whitetimerText.setText("0:0:10");
+
+                        blackTime = calculateTime(blacktimerText.getText().toString());
+                        blackTimer1 = new BlackTimer(blackTime, 1000);
+                        blackTimer1.start();
+                    }
+
+                    if(order == 2 && isStart && !whiteFirstTimerEnd && blackFirstTimerEnd)
+                    {
+                        offTimer();
+
+                        blacktimerText.setText("0:0:10");
+
+                        whiteTime = calculateTime(whitetimerText.getText().toString());
+                        whiteTimer = new WhiteTimer(whiteTime, 1000);
+                        whiteTimer.start();
+                    }
+                    else if(order == 1 && isStart && !whiteFirstTimerEnd && blackFirstTimerEnd)
+                    {
+                        offTimer();
+
+                        whiteTimer.cancel();
+
+                        int millisMinute = (int)(whiteTmepMillisecond/1000) % 3600;
+                        int millisSecond = (int) millisMinute % 60;
+                        whitetimerText.setText(Integer.toString((int) (whiteTmepMillisecond/1000)/3600) + ":"
+                                + Integer.toString(millisMinute/60) + ":" + Integer.toString(millisSecond));
+
+                        blackTime = calculateTime(blacktimerText.getText().toString());
+                        lastBlackTimer = new BlackTimer(blackTime, 1000);
+                        lastBlackTimer.start();
+                    }
+
+                    if(order == 2 && isStart && whiteFirstTimerEnd && blackFirstTimerEnd)
+                    {
+                        offTimer();
+
+                        blacktimerText.setText("0:0:10");
+
+                        whiteTime = calculateTime(whitetimerText.getText().toString());
+                        lastWhiteTimer = new WhiteTimer(whiteTime, 1000);
+                        lastWhiteTimer.start();
+                    }
+                    else if(order == 1 && isStart && whiteFirstTimerEnd && blackFirstTimerEnd)
+                    {
+                        offTimer();
+
+                        whitetimerText.setText("0:0:10");
+
+                        blackTime = calculateTime(blacktimerText.getText().toString());
+                        lastBlackTimer = new BlackTimer(blackTime, 1000);
+                        lastBlackTimer.start();
+                    }
                 }
-
             });
 
             return convertView;
@@ -1329,7 +928,7 @@ public class MainActivity extends AppCompatActivity {
 
                     order = 1;
                     deathBlackStones = 0;
-                    deathWhiteStones = 0;
+                    deathwhiteStones = 0;
                     setIcon(replayImage);
 
                     for(int i = 0; i < 19*19; i++)
@@ -1428,7 +1027,7 @@ public class MainActivity extends AppCompatActivity {
                                             if (order == 1) {
                                                 deathBlackStones++;
                                             } else {
-                                                deathWhiteStones++;
+                                                deathwhiteStones++;
                                             }
 
                                             resetIcon(replayImage, replayPopPosition);
@@ -1467,7 +1066,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                             // 죽은 돌들을 카운트 해줌
-                            String whiteCount = "죽은 백돌: " + deathWhiteStones + " 개";
+                            String whiteCount = "죽은 백돌: " + deathwhiteStones + " 개";
                             String blackCount = "죽은 흑돌: " + deathBlackStones + " 개";
                             deathWhiteCount.setText(whiteCount);
                             deathBlackCount.setText(blackCount);
@@ -1568,7 +1167,7 @@ public class MainActivity extends AppCompatActivity {
                                         if (order == 1) {
                                             deathBlackStones++;
                                         } else {
-                                            deathWhiteStones++;
+                                            deathwhiteStones++;
                                         }
 
                                         resetIcon(replayImage, replayPopPosition);
@@ -1607,7 +1206,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                         // 죽은 돌들을 카운트 해줌
-                        String whiteCount = "죽은 백돌: " + deathWhiteStones + " 개";
+                        String whiteCount = "죽은 백돌: " + deathwhiteStones + " 개";
                         String blackCount = "죽은 흑돌: " + deathBlackStones + " 개";
                         deathWhiteCount.setText(whiteCount);
                         deathBlackCount.setText(blackCount);
@@ -3084,52 +2683,6 @@ public class MainActivity extends AppCompatActivity {
         img[288] = R.drawable.square_point5;
         img[294] = R.drawable.square_point5;
         img[300] = R.drawable.square_point5;
-    }
-
-    public void bringStoneData(int img[], int color, int position)
-    {
-        if(color == 1) {
-            if (position == 0) {
-                img[position] = R.drawable.left_top_black;
-            } else if (position == 18) {
-                img[position] = R.drawable.right_top_black;
-            } else if (position == 342) {
-                img[position] = R.drawable.left_bottom_black;
-            } else if (position == 360) {
-                img[position] = R.drawable.right_bottom_black;
-            } else if (position % 19 == 0 && position != 0 && position != 342) {
-                img[position] = R.drawable.left_black1;
-            } else if (position >= 1 && position <= 17) {
-                img[position] = R.drawable.top_black1;
-            } else if (position % 19 == 18 && position != 18 && position != 360) {
-                img[position] = R.drawable.right_black1;
-            } else if (position >= 343 && position <= 359) {
-                img[position] = R.drawable.bottom_black1;
-            } else {
-                img[position] = R.drawable.square_black1;
-            }
-        }
-        else if(color == 2) {
-            if (position == 0) {
-                img[position] = R.drawable.left_top_white;
-            } else if (position == 18) {
-                img[position] = R.drawable.right_top_white;
-            } else if (position == 342) {
-                img[position] = R.drawable.left_bottom_white;
-            } else if (position == 360) {
-                img[position] = R.drawable.right_bottom_white;
-            } else if (position % 19 == 0 && position != 0 && position != 342) {
-                img[position] = R.drawable.left_white1;
-            } else if (position >= 1 && position <= 17) {
-                img[position] = R.drawable.top_white1;
-            } else if (position % 19 == 18 && position != 18 && position != 360) {
-                img[position] = R.drawable.right_white1;
-            } else if (position >= 343 && position <= 359) {
-                img[position] = R.drawable.bottom_white1;
-            } else {
-                img[position] = R.drawable.square_white;
-            }
-        }
     }
 
     // 바둑판을 클릭해서 돌을 놓는 함수

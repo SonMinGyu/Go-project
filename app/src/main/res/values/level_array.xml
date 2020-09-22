@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name = "바둑기력">
+        <item>바둑 기력</item>
+        <item>1급</item>
+        <item>2급</item>
+        <item>3급</item>
+        <item>4급</item>
+        <item>5급</item>
+        <item>6급</item>
+        <item>7급</item>
+        <item>8급</item>
+        <item>9급</item>
+        <item>1단</item>
+        <item>2단</item>
+        <item>3단</item>
+        <item>4단</item>
+        <item>5단</item>
+        <item>6단</item>
+        <item>7단</item>
+        <item>8단</item>
+        <item>9단</item>
+        <item>없음</item>
+    </string-array>
+</resources>

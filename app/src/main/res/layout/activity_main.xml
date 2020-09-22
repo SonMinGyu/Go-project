@@ -10,43 +10,41 @@
         android:id="@+id/gridView"
         android:layout_width="385dp"
         android:layout_height="385dp"
+        android:layout_marginTop="10dp"
         android:horizontalSpacing="0dp"
         android:numColumns="19"
         android:verticalSpacing="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.046" />
+        app:layout_constraintTop_toBottomOf="@+id/main_gameTitle"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/main_black_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="10dp"
         android:text="죽은 백돌: 0개"
         app:layout_constraintEnd_toStartOf="@+id/main_startButton"
-        app:layout_constraintHorizontal_bias="0.341"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_turn_textView" />
+        app:layout_constraintTop_toBottomOf="@+id/main_black_timer" />
 
     <TextView
         android:id="@+id/main_white_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="죽은 흑돌: 0개"
-        app:layout_constraintBottom_toBottomOf="@+id/main_black_score"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toEndOf="@+id/main_startButton"
-        app:layout_constraintTop_toTopOf="@+id/main_black_score"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/main_white_timer" />
 
     <TextView
         android:id="@+id/main_turn_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="10dp"
         android:text="차례"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +54,7 @@
         android:id="@+id/main_finishButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="82dp"
         android:text="계가하기"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -68,8 +66,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginLeft="50dp"
-        android:text="이전"
         android:visibility="gone"
+        android:text="이전"
         app:layout_constraintBottom_toBottomOf="@+id/main_replayButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/main_replayButton" />
@@ -80,8 +78,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="50dp"
         android:layout_marginRight="50dp"
-        android:text="다음"
         android:visibility="gone"
+        android:text="다음"
         app:layout_constraintBottom_toBottomOf="@+id/main_replayButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/main_replayButton"
@@ -92,8 +90,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="복기하기"
         android:visibility="gone"
+        android:text="복기하기"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/main_finishButton" />
@@ -102,13 +100,12 @@
         android:id="@+id/main_autoReplay_checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginLeft="25dp"
-        android:text="자동 복기"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/main_finishButton"
-        app:layout_constraintStart_toEndOf="@+id/main_finishButton"
-        app:layout_constraintTop_toTopOf="@+id/main_finishButton" />
+        android:layout_marginTop="10dp"
+        android:text="자동 복기"
+        app:layout_constraintEnd_toEndOf="@+id/main_replayButton"
+        app:layout_constraintStart_toStartOf="@+id/main_replayButton"
+        app:layout_constraintTop_toBottomOf="@+id/main_replayButton" />
 
     <TextView
         android:id="@+id/main_black_user"
@@ -123,12 +120,11 @@
         android:id="@+id/main_black_timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginLeft="40dp"
         android:layout_marginTop="10dp"
         android:text="0:30:00"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_black_user" />
+        app:layout_constraintEnd_toEndOf="@+id/main_black_user"
+        app:layout_constraintStart_toStartOf="@+id/main_black_user"
+        app:layout_constraintTop_toBottomOf="@+id/main_black_chanceText" />
 
     <TextView
         android:id="@+id/main_white_user"
@@ -144,11 +140,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginRight="40dp"
         android:text="0:30:00"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_white_user" />
+        app:layout_constraintEnd_toEndOf="@+id/main_white_user"
+        app:layout_constraintStart_toStartOf="@+id/main_white_user"
+        app:layout_constraintTop_toBottomOf="@+id/main_white_chanceText" />
 
     <Button
         android:id="@+id/main_startButton"
@@ -164,24 +159,76 @@
         android:id="@+id/main_black_chanceText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
         android:visibility="gone"
         android:text="5회"
-        app:layout_constraintBottom_toBottomOf="@+id/main_black_timer"
-        app:layout_constraintStart_toEndOf="@+id/main_black_timer"
-        app:layout_constraintTop_toTopOf="@+id/main_black_timer" />
+        app:layout_constraintEnd_toEndOf="@+id/main_black_user"
+        app:layout_constraintStart_toStartOf="@+id/main_black_user"
+        app:layout_constraintTop_toBottomOf="@+id/main_black_userName" />
 
     <TextView
         android:id="@+id/main_white_chanceText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
         android:visibility="gone"
         android:text="5회"
-        app:layout_constraintBottom_toBottomOf="@+id/main_white_timer"
-        app:layout_constraintEnd_toStartOf="@+id/main_white_timer"
-        app:layout_constraintTop_toTopOf="@+id/main_white_timer" />
+        app:layout_constraintEnd_toEndOf="@+id/main_white_user"
+        app:layout_constraintStart_toStartOf="@+id/main_white_user"
+        app:layout_constraintTop_toBottomOf="@+id/main_white_userName" />
+
+    <TextView
+        android:id="@+id/main_gameTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="게임 이름"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/main_black_userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="흑돌 유저"
+        app:layout_constraintEnd_toEndOf="@+id/main_black_user"
+        app:layout_constraintStart_toStartOf="@+id/main_black_user"
+        app:layout_constraintTop_toBottomOf="@+id/main_black_user" />
+
+    <TextView
+        android:id="@+id/main_white_userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="백돌 유저"
+        app:layout_constraintEnd_toEndOf="@+id/main_white_user"
+        app:layout_constraintStart_toStartOf="@+id/main_white_user"
+        app:layout_constraintTop_toBottomOf="@+id/main_white_user" />
+
+    <TextView
+        android:id="@+id/main_hostName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:text="host"
+        app:layout_constraintBottom_toBottomOf="@+id/main_participantName"
+        app:layout_constraintEnd_toStartOf="@+id/main_participantName"
+        app:layout_constraintTop_toTopOf="@+id/main_participantName"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/main_participantName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:text="participant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
