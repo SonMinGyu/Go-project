@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OmokOneDevicePlayActivity">
+
+    <GridView
+        android:id="@+id/omok_gridView"
+        android:layout_width="385dp"
+        android:layout_height="385dp"
+        android:layout_marginTop="10dp"
+        android:horizontalSpacing="0dp"
+        android:numColumns="19"
+        android:verticalSpacing="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/omok_gameTitle"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/omok_turn_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="차례"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/omok_gridView" />
+
+    <TextView
+        android:id="@+id/omok_black_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="흑"
+        app:layout_constraintEnd_toStartOf="@+id/omok_startButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/omok_turn_textView" />
+
+    <TextView
+        android:id="@+id/omok_white_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="백"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/omok_startButton"
+        app:layout_constraintTop_toBottomOf="@+id/omok_turn_textView" />
+
+    <Button
+        android:id="@+id/omok_startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="게임 시작"
+        app:layout_constraintEnd_toEndOf="@+id/omok_turn_textView"
+        app:layout_constraintStart_toStartOf="@+id/omok_turn_textView"
+        app:layout_constraintTop_toBottomOf="@+id/omok_turn_textView" />
+
+    <TextView
+        android:id="@+id/omok_gameTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="게임 이름"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/omok_black_userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="흑돌 유저"
+        app:layout_constraintEnd_toEndOf="@+id/omok_black_user"
+        app:layout_constraintStart_toStartOf="@+id/omok_black_user"
+        app:layout_constraintTop_toBottomOf="@+id/omok_black_user" />
+
+    <TextView
+        android:id="@+id/omok_white_userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="백돌 유저"
+        app:layout_constraintEnd_toEndOf="@+id/omok_white_user"
+        app:layout_constraintStart_toStartOf="@+id/omok_white_user"
+        app:layout_constraintTop_toBottomOf="@+id/omok_white_user" />
+
+    <TextView
+        android:id="@+id/omok_hostName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:text="host"
+        app:layout_constraintBottom_toBottomOf="@+id/omok_participantName"
+        app:layout_constraintEnd_toStartOf="@+id/omok_participantName"
+        app:layout_constraintTop_toTopOf="@+id/omok_participantName"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/omok_participantName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:text="participant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

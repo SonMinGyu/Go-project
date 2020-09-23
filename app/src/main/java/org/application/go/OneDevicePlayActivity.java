@@ -2260,8 +2260,6 @@ public class OneDevicePlayActivity extends AppCompatActivity {
         if(rightExamination(go_points, getPosition)) {
             myRightStoneSearch(go_points, getPosition + 1, deleteStack);
         }
-
-        System.out.println("gd");
     }
 
     // (착수금지를 위한 함수)canPutEnemyStoneStack 스택에 있는 돌들 하나씩 꺼내서 그 돌과 연결된 모든 돌을 검사
