@@ -23,6 +23,69 @@ public class GameModel {
     private String blackTimer;
     private String whiteTimer;
     private boolean finish;
+    private int winColor;
+    private double blackHouse;
+    private double whiteHouse;
+    private int blackNumOfCount;
+    private int whiteNumOfCount;
+    private boolean blackOut;
+    private boolean whiteOut;
+
+    public boolean isBlackOut() {
+        return blackOut;
+    }
+
+    public void setBlackOut(boolean blackOut) {
+        this.blackOut = blackOut;
+    }
+
+    public boolean isWhiteOut() {
+        return whiteOut;
+    }
+
+    public void setWhiteOut(boolean whiteOut) {
+        this.whiteOut = whiteOut;
+    }
+
+    public int getBlackNumOfCount() {
+        return blackNumOfCount;
+    }
+
+    public void setBlackNumOfCount(int blackNumOfCount) {
+        this.blackNumOfCount = blackNumOfCount;
+    }
+
+    public int getWhiteNumOfCount() {
+        return whiteNumOfCount;
+    }
+
+    public void setWhiteNumOfCount(int whiteNumOfCount) {
+        this.whiteNumOfCount = whiteNumOfCount;
+    }
+
+    public double getBlackHouse() {
+        return blackHouse;
+    }
+
+    public void setBlackHouse(double blackHouse) {
+        this.blackHouse = blackHouse;
+    }
+
+    public double getWhiteHouse() {
+        return whiteHouse;
+    }
+
+    public void setWhiteHouse(double whiteHouse) {
+        this.whiteHouse = whiteHouse;
+    }
+
+    public int getWinColor() {
+        return winColor;
+    }
+
+    public void setWinColor(int winColor) {
+        this.winColor = winColor;
+    }
 
     public boolean getFinish() {
         return finish;

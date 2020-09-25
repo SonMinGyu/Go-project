@@ -36,11 +36,49 @@ public class GoWatingRoomActivity extends AppCompatActivity {
     RecyclerView gameListRecyclerView;
     String GWRUserLevel = GWRBringUserLevel();
     String GWRUserName = GWRBringUserName();
+    TextView noGameText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_go_wating_room);
+
+        noGameText = (TextView) findViewById(R.id.goWatingRoom_noGameText);
+
+        final List<GameModel> gameModels2 = new ArrayList<>();
+        FirebaseDatabase.getInstance().getReference().child("Game").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                gameModels2.clear();
+                for (DataSnapshot item : dataSnapshot.getChildren()) {
+                    gameModels2.add(item.getValue(GameModel.class));
+                }
+
+                if(gameModels2.size() == 0)
+                {
+                    noGameText.setVisibility(View.VISIBLE);
+                }
+
+                for (int i = 0; i < gameModels2.size(); i++) {
+                    if (gameModels2.get(i).isBlackOut() && gameModels2.get(i).isWhiteOut()) {
+                        String key = gameModels2.get(i).getGameKey();
+                        /*
+                        FirebaseDatabase.getInstance().getReference().child("WatingRoom").child(key)
+                                .removeValue();
+
+                         */
+
+                        FirebaseDatabase.getInstance().getReference().child("Game").child(key)
+                                .removeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         gameListRecyclerView = (RecyclerView) findViewById(R.id.goWatingRoom_recyclerView);
         gameListRecyclerView.setAdapter(new GameListRecyclerViewAdapter());
@@ -63,11 +101,13 @@ public class GoWatingRoomActivity extends AppCompatActivity {
         private ArrayList<String> keyList = new ArrayList<>();
         private ArrayList<String> titleList = new ArrayList<>();
         private ArrayList<String> hostUidList = new ArrayList<>();
+        private ArrayList<String> gameTypeList = new ArrayList<>();
         private String uid;
 
         public GameListRecyclerViewAdapter() {
             uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+            /*
             FirebaseDatabase.getInstance().getReference().child("Game").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -75,13 +115,16 @@ public class GoWatingRoomActivity extends AppCompatActivity {
                     keyList.clear();
                     titleList.clear();
                     hostUidList.clear();
+                    gameTypeList.clear();
                     for(DataSnapshot item :dataSnapshot.getChildren())
                     {
                         gameModels.add(item.getValue(GameModel.class));
                         keyList.add(item.getValue(GameModel.class).getGameKey());
                         titleList.add(item.getValue(GameModel.class).getGameTitle());
                         hostUidList.add(item.getValue(GameModel.class).getHostUid());
+                        gameTypeList.add(item.getValue(GameModel.class).getGameType());
                     }
+
                     notifyDataSetChanged();
                 }
 
@@ -90,6 +133,35 @@ public class GoWatingRoomActivity extends AppCompatActivity {
 
                 }
             });
+
+             */
+
+            FirebaseDatabase.getInstance().getReference().child("Game").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    gameModels.clear();
+                    keyList.clear();
+                    titleList.clear();
+                    hostUidList.clear();
+                    gameTypeList.clear();
+                    for(DataSnapshot item :dataSnapshot.getChildren())
+                    {
+                        gameModels.add(item.getValue(GameModel.class));
+                        keyList.add(item.getValue(GameModel.class).getGameKey());
+                        titleList.add(item.getValue(GameModel.class).getGameTitle());
+                        hostUidList.add(item.getValue(GameModel.class).getHostUid());
+                        gameTypeList.add(item.getValue(GameModel.class).getGameType());
+                    }
+
+                    notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
 
 
         }
@@ -164,12 +236,21 @@ public class GoWatingRoomActivity extends AppCompatActivity {
                                 FirebaseDatabase.getInstance().getReference().child("Game").child(gamekey).updateChildren(taskMap);
                             }
 
-                            Intent gameIntent = new Intent(GoWatingRoomActivity.this, MainActivity.class);
-                            gameIntent.putExtra("gamekey", gamekey);
-                            gameIntent.putExtra("gameTitle", gameTitle);
-                            gameIntent.putExtra("hostUid", hostUid);
-                            GoWatingRoomActivity.this.startActivity(gameIntent);
-                            //Toast.makeText(getContext(),"클릭",Toast.LENGTH_SHORT).show();
+                            if(gameTypeList.get(position).equals("Go")) {
+                                Intent gameIntent = new Intent(GoWatingRoomActivity.this, MainActivity.class);
+                                gameIntent.putExtra("gamekey", gamekey);
+                                gameIntent.putExtra("gameTitle", gameTitle);
+                                gameIntent.putExtra("hostUid", hostUid);
+                                GoWatingRoomActivity.this.startActivity(gameIntent);
+                            }
+                            else if(gameTypeList.get(position).equals("Omok"))
+                            {
+                                Intent gameIntent = new Intent(GoWatingRoomActivity.this, OmokMultiplayActivity.class);
+                                gameIntent.putExtra("gamekey", gamekey);
+                                gameIntent.putExtra("gameTitle", gameTitle);
+                                gameIntent.putExtra("hostUid", hostUid);
+                                GoWatingRoomActivity.this.startActivity(gameIntent);
+                            }
                         }
                     }
                 });

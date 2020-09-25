@@ -74,8 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if(user != null) // 로그인
                 {
-                    //Intent loginSuccessintent = new Intent(LoginActivity.this, GoWatingRoomActivity.class); // 바둑
-                    Intent loginSuccessintent = new Intent(LoginActivity.this, OmokOneDevicePlayActivity.class); // 오목
+                    Intent loginSuccessintent = new Intent(LoginActivity.this, GameMenuActivity.class);
                     LoginActivity.this.startActivity(loginSuccessintent);
                     finish();
                 }

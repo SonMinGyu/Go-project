@@ -30,6 +30,7 @@ public class CreateGame extends AppCompatActivity {
 
     EditText gameTitle;
     CheckBox goCheckBox;
+    CheckBox omokCheckBox;
     CheckBox blackCheckBox;
     CheckBox whiteCheckBox;
     Button createButton;
@@ -44,11 +45,32 @@ public class CreateGame extends AppCompatActivity {
 
         gameTitle = (EditText) findViewById(R.id.createGame_gameName_editText);
         goCheckBox = (CheckBox) findViewById(R.id.createGame_go_checkBox);
+        omokCheckBox = (CheckBox) findViewById(R.id.createGame_omok_checkBox);
         blackCheckBox = (CheckBox) findViewById(R.id.createGame_black_checkBox);
         whiteCheckBox = (CheckBox) findViewById(R.id.createGame_white_checkBox);
         createButton = (Button) findViewById(R.id.createGame_createButton);
 
         userLevel = bringUserLevel();
+
+        goCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(goCheckBox.isChecked())
+                {
+                    omokCheckBox.setChecked(false);
+                }
+            }
+        });
+
+        omokCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(omokCheckBox.isChecked())
+                {
+                    goCheckBox.setChecked(false);
+                }
+            }
+        });
 
         blackCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -79,7 +101,7 @@ public class CreateGame extends AppCompatActivity {
                 }
 
                 // 오목 만들면 수정해야함
-                if (!goCheckBox.isChecked()) {
+                if (!goCheckBox.isChecked() && !omokCheckBox.isChecked()) {
                     Toast.makeText(getApplicationContext(), "게임을 선택하세요!", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -91,39 +113,78 @@ public class CreateGame extends AppCompatActivity {
 
                 String stGameType = null;
                 GameModel gameModel = new GameModel();
-                gameModel.setGameTitle(gameTitle.getText().toString());
+
                 if(goCheckBox.isChecked()) {
+                    gameModel.setGameTitle(gameTitle.getText().toString());
                     stGameType = "Go";
-                    gameModel.setGameType("Go");
-                }
-                gameModel.setHostUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                if (blackCheckBox.isChecked()) {
-                    gameModel.setHostColor(1);
-                    gameModel.setParticipantColor(2);
-                } else if (whiteCheckBox.isChecked()) {
-                    gameModel.setHostColor(2);
-                    gameModel.setParticipantColor(1);
-                }
-                gameModel.setGameKey(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay());
-                gameModel.setHostLevel(userLevel);
-                gameModel.setNumberOfUsers(1);
-                gameModel.setHostName(userName);
-                gameModel.setDeathBlackStones(0);
-                gameModel.setDeathWhiteStones(0);
-                gameModel.setBlackTimer("00:30:00");
-                gameModel.setWhiteTimer("00:30:00");
-                gameModel.setOrder(1);
-                gameModel.setFinish(false);
-                gameModel.setParticipantName("");
+                    gameModel.setGameType(stGameType);
+                    gameModel.setHostUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    if (blackCheckBox.isChecked()) {
+                        gameModel.setHostColor(1);
+                        gameModel.setParticipantColor(2);
+                    } else if (whiteCheckBox.isChecked()) {
+                        gameModel.setHostColor(2);
+                        gameModel.setParticipantColor(1);
+                    }
+                    gameModel.setGameKey(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay());
+                    gameModel.setHostLevel(userLevel);
+                    gameModel.setNumberOfUsers(1);
+                    gameModel.setHostName(userName);
+                    gameModel.setDeathBlackStones(0);
+                    gameModel.setDeathWhiteStones(0);
+                    gameModel.setBlackTimer("00:30:00");
+                    gameModel.setWhiteTimer("00:30:00");
+                    gameModel.setOrder(1);
+                    gameModel.setFinish(false);
+                    gameModel.setParticipantName("");
 
-                FirebaseDatabase.getInstance().getReference().child("Game")
-                        .child(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay()).setValue(gameModel);
+                    FirebaseDatabase.getInstance().getReference().child("Game")
+                            .child(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay()).setValue(gameModel);
 
-                Intent gameIntent = new Intent(CreateGame.this, MainActivity.class);
-                gameIntent.putExtra("gamekey", gameModel.getGameKey());
-                gameIntent.putExtra("gameTitle", gameModel.getGameTitle());
-                gameIntent.putExtra("hostUid", gameModel.getHostUid());
-                CreateGame.this.startActivity(gameIntent);
+                    /*
+                    FirebaseDatabase.getInstance().getReference().child("WatingRoom")
+                            .child(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay()).setValue(gameModel);
+
+                     */
+
+                    Intent gameIntent = new Intent(CreateGame.this, MainActivity.class);
+                    gameIntent.putExtra("gamekey", gameModel.getGameKey());
+                    gameIntent.putExtra("gameTitle", gameModel.getGameTitle());
+                    gameIntent.putExtra("hostUid", gameModel.getHostUid());
+                    CreateGame.this.startActivity(gameIntent);
+                }
+                else if(omokCheckBox.isChecked())
+                {
+                    gameModel.setGameTitle(gameTitle.getText().toString());
+                    stGameType = "Omok";
+                    gameModel.setGameType(stGameType);
+                    gameModel.setHostUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    if (blackCheckBox.isChecked()) {
+                        gameModel.setHostColor(1);
+                        gameModel.setParticipantColor(2);
+                    } else if (whiteCheckBox.isChecked()) {
+                        gameModel.setHostColor(2);
+                        gameModel.setParticipantColor(1);
+                    }
+                    gameModel.setGameKey(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay());
+                    gameModel.setNumberOfUsers(1);
+                    gameModel.setHostName(userName);
+                    gameModel.setOrder(1);
+                    gameModel.setFinish(false);
+                    gameModel.setParticipantName("");
+
+                    FirebaseDatabase.getInstance().getReference().child("Game")
+                            .child(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay()).setValue(gameModel);
+
+                    FirebaseDatabase.getInstance().getReference().child("WatingRoom")
+                            .child(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay()).setValue(gameModel);
+
+                    Intent gameIntent = new Intent(CreateGame.this, OmokMultiplayActivity.class);
+                    gameIntent.putExtra("gamekey", gameModel.getGameKey());
+                    gameIntent.putExtra("gameTitle", gameModel.getGameTitle());
+                    gameIntent.putExtra("hostUid", gameModel.getHostUid());
+                    CreateGame.this.startActivity(gameIntent);
+                }
 
                 finish();
             }

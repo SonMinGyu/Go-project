@@ -45,6 +45,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
     int deathBlackStones = 0;
     boolean isStart = false;
     boolean isFinish = false;
+    int numOfcount = 0;
 
     EnemyStoneStack canPutEnemyStoneStack;
     DeleteStack canPutDeleteStack;
@@ -109,8 +110,8 @@ public class OneDevicePlayActivity extends AppCompatActivity {
     //계가를 위한 선언
     DeleteStack emptyStoneStack;
     DeleteStack inspectionStack;
-    int blackHouseCount = 0;
-    int whiteHouseCount = 0;
+    double blackHouseCount = 0;
+    double whiteHouseCount = 0;
 
     //Button button;
     String gameKey;
@@ -121,7 +122,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //button = (Button) findViewById(R.id.button);
-        gameKey = getIntent().getExtras().getString("gamekey");
+        //gameKey = getIntent().getExtras().getString("gamekey");
 
         turnText = (TextView) findViewById(R.id.main_turn_textView);
         deathWhiteCount = (TextView) findViewById(R.id.main_black_score);
@@ -215,6 +216,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                     //
                 }
 
+                /*
                 if(blackHouseCount == whiteHouseCount)
                 {
                     Toast.makeText(getApplicationContext(), "비겼습니다!", Toast.LENGTH_SHORT).show();
@@ -228,8 +230,89 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "백이 이겼습니다!", Toast.LENGTH_SHORT).show();
                 }
 
-                System.out.println("mainmainmain " + Integer.toString(blackHouseCount));
-                System.out.println("mainmainmain " + Integer.toString(whiteHouseCount));
+                 */
+
+
+                if((blackHouseCount + deathwhiteStones) == (whiteHouseCount + deathBlackStones))
+                {
+                    double result = (blackHouseCount + deathwhiteStones);
+                    //int numOfcount = blackNumOfCount + whiteNumOfCount;
+                    final LinearLayout linearLayout = (LinearLayout) View.inflate(OneDevicePlayActivity.this, R.layout.activity_black_win, null);
+                    TextView winText = (TextView) linearLayout.findViewById(R.id.black_win_defeatText);
+                    winText.setText(Integer.toString(numOfcount) + "수 " +Double.toString(result) + "집으로 비겼습니다!");
+                    final AlertDialog.Builder customDialog = new AlertDialog.Builder(OneDevicePlayActivity.this);
+                    customDialog.setView(linearLayout)
+                            .setCancelable(false)
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                    final AlertDialog alertDialog = customDialog.create();
+                    alertDialog.show();
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            alertDialog.dismiss();
+                            //finish();
+                        }
+                    });
+                }
+                else if((blackHouseCount + deathwhiteStones) > (whiteHouseCount + deathBlackStones))
+                {
+                    double result = (blackHouseCount + deathwhiteStones) - (whiteHouseCount + deathBlackStones);
+                    //int numOfcount = blackNumOfCount + whiteNumOfCount;
+                    final LinearLayout linearLayout = (LinearLayout) View.inflate(OneDevicePlayActivity.this, R.layout.activity_black_win, null);
+                    TextView winText = (TextView) linearLayout.findViewById(R.id.black_win_defeatText);
+                    winText.setText(Integer.toString(numOfcount) + "수 " + "흑 " + Double.toString(result) + "집 승(勝)");
+                    final AlertDialog.Builder customDialog = new AlertDialog.Builder(OneDevicePlayActivity.this);
+                    customDialog.setView(linearLayout)
+                            .setCancelable(false)
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                    final AlertDialog alertDialog = customDialog.create();
+                    alertDialog.show();
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            alertDialog.dismiss();
+                            //finish();
+                        }
+                    });
+                }
+                else
+                {
+                    double result = (whiteHouseCount + deathBlackStones) - (blackHouseCount + deathwhiteStones);
+                    //int numOfcount = blackNumOfCount + whiteNumOfCount;
+                    final LinearLayout linearLayout = (LinearLayout) View.inflate(OneDevicePlayActivity.this, R.layout.activity_white_win, null);
+                    TextView winText = (TextView) linearLayout.findViewById(R.id.white_win_defeatText);
+                    winText.setText(Integer.toString(numOfcount) + "수 " + "백 " + Double.toString(result) + "집 승(勝)");
+                    final AlertDialog.Builder customDialog = new AlertDialog.Builder(OneDevicePlayActivity.this);
+                    customDialog.setView(linearLayout)
+                            .setCancelable(false)
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                    final AlertDialog alertDialog = customDialog.create();
+                    alertDialog.show();
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            alertDialog.dismiss();
+                            //finish();
+                        }
+                    });
+                }
+                System.out.println("mainmainmain " + Double.toString(blackHouseCount));
+                System.out.println("mainmainmain " + Double.toString(whiteHouseCount));
             }
         });
 
@@ -760,6 +843,8 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                     String blackCount = "죽은 흑돌: " + deathBlackStones + " 개";
                     deathWhiteCount.setText(whiteCount);
                     deathBlackCount.setText(blackCount);
+
+                    numOfcount++;
 
                     // 4가지 경우 생각해서 해야함
                     if(order == 2 && isStart && !whiteFirstTimerEnd && !blackFirstTimerEnd)
@@ -3065,7 +3150,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
 
     public void countHouse(ArrayList<Go_point> go_points, DeleteStack inspectionStack)
     {
-        int count = 0;
+        double count = 0;
         int upColor = 0;
         int leftColor = 0;
         int downColor = 0;
@@ -3082,8 +3167,18 @@ public class OneDevicePlayActivity extends AppCompatActivity {
 
         for(int i = inspectionStack.getTop() + 1; i > 0; i--)
         {
-            count++;
             int position = inspectionStack.pop();
+
+            if(!upExamination(go_points, position) || !leftExamination(go_points, position) || !downExamination(go_points, position)
+                    || !rightExamination(go_points, position))
+            {
+                count += 0.5;
+            }
+            else
+            {
+                count += 1;
+            }
+
             if(go_points.get(position).isUpStoneExistence())
             {
                 inspectionUpList.add(go_points.get(position).getUpStoneColor());
