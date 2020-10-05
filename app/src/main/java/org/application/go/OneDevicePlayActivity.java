@@ -1331,6 +1331,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
             if(go_points.get(myPosition + 1).isExistence_stone()
                     && go_points.get(myPosition + 19).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition + 1).getStone_color() != order
                         && go_points.get(myPosition + 19).getStone_color() != order)
                 {
@@ -1340,6 +1341,9 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+                 */
+
+                return false;
             }
             else
             {
@@ -1351,6 +1355,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
             if(go_points.get(myPosition - 1).isExistence_stone()
                     && go_points.get(myPosition + 19).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition - 1).getStone_color() != order
                         && go_points.get(myPosition + 19).getStone_color() != order)
                 {
@@ -1360,6 +1365,9 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+                 */
+
+                return false;
             }
             else
             {
@@ -1371,6 +1379,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
             if(go_points.get(myPosition - 19).isExistence_stone()
                     && go_points.get(myPosition + 1).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition - 19).getStone_color() != order
                         && go_points.get(myPosition + 1).getStone_color() != order)
                 {
@@ -1380,6 +1389,9 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+                 */
+
+                return false;
             }
             else
             {
@@ -1391,6 +1403,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
             if(go_points.get(myPosition - 1).isExistence_stone()
                     && go_points.get(myPosition - 19).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition - 1).getStone_color() != order
                         && go_points.get(myPosition - 19).getStone_color() != order)
                 {
@@ -1400,6 +1413,9 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+                 */
+
+                return false;
             }
             else
             {
@@ -1412,6 +1428,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                     && go_points.get(myPosition + 1).isExistence_stone()
                     && go_points.get(myPosition + 19).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition - 19).getStone_color() != order
                         && go_points.get(myPosition + 1).getStone_color() != order
                         && go_points.get(myPosition + 19).getStone_color() != order)
@@ -1422,6 +1439,9 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+                 */
+
+                return false;
             }
             else
             {
@@ -1434,6 +1454,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                     && go_points.get(myPosition + 19).isExistence_stone()
                     && go_points.get(myPosition + 1).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition - 1).getStone_color() != order
                         && go_points.get(myPosition + 19).getStone_color() != order
                         && go_points.get(myPosition + 1).getStone_color() != order)
@@ -1444,6 +1465,9 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+
+                 */
+                return false;
             }
             else
             {
@@ -1456,6 +1480,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                     && go_points.get(myPosition - 1).isExistence_stone()
                     && go_points.get(myPosition + 19).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition - 19).getStone_color() != order
                         && go_points.get(myPosition - 1).getStone_color() != order
                         && go_points.get(myPosition + 19).getStone_color() != order)
@@ -1466,6 +1491,9 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+                 */
+
+                return false;
             }
             else
             {
@@ -1478,6 +1506,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                     && go_points.get(myPosition - 19).isExistence_stone()
                     && go_points.get(myPosition + 1).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition - 1).getStone_color() != order
                         && go_points.get(myPosition - 19).getStone_color() != order
                         && go_points.get(myPosition + 1).getStone_color() != order)
@@ -1488,6 +1517,8 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+                 */
+                return false;
             }
             else
             {
@@ -1501,6 +1532,7 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                     && go_points.get(myPosition + 1).isExistence_stone()
                     && go_points.get(myPosition - 19).isExistence_stone())
             {
+                /*
                 if(go_points.get(myPosition - 1).getStone_color() != order
                         && go_points.get(myPosition + 19).getStone_color() != order
                         && go_points.get(myPosition + 1).getStone_color() != order
@@ -1512,6 +1544,8 @@ public class OneDevicePlayActivity extends AppCompatActivity {
                 {
                     return true;
                 }
+                 */
+                return false;
             }
             else
             {

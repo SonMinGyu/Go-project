@@ -2,7 +2,9 @@ package org.application.go;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -172,12 +175,50 @@ public class OmokOneDevicePlayActivity extends AppCompatActivity {
                     if(verticalCount == 5 || horizontalCount == 5 || leftDiagonalCount == 5 || rightDiagonalCount == 5)
                     {
                         if(omokOrder == 2) {
-                            Toast.makeText(getApplicationContext(), "흑돌 승리하셨습니다!", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "흑돌 승리하셨습니다!", Toast.LENGTH_SHORT).show();
+                            final LinearLayout linearLayout = (LinearLayout) View.inflate(OmokOneDevicePlayActivity.this, R.layout.activity_black_win, null);
+                            final AlertDialog.Builder customDialog = new AlertDialog.Builder(OmokOneDevicePlayActivity.this);
+                            customDialog.setView(linearLayout)
+                                    .setCancelable(false)
+                                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        }
+                                    });
+                            final AlertDialog alertDialog = customDialog.create();
+                            alertDialog.show();
+                            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    alertDialog.dismiss();
+                                    finish();
+                                }
+                            });
                             omokIsStart = false;
                         }
                         else
                         {
-                            Toast.makeText(getApplicationContext(), "백돌 승리하셨습니다!", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "백돌 승리하셨습니다!", Toast.LENGTH_SHORT).show();
+                            final LinearLayout linearLayout = (LinearLayout) View.inflate(OmokOneDevicePlayActivity.this, R.layout.activity_white_win, null);
+                            final AlertDialog.Builder customDialog = new AlertDialog.Builder(OmokOneDevicePlayActivity.this);
+                            customDialog.setView(linearLayout)
+                                    .setCancelable(false)
+                                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        }
+                                    });
+                            final AlertDialog alertDialog = customDialog.create();
+                            alertDialog.show();
+                            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    alertDialog.dismiss();
+                                    finish();
+                                }
+                            });
                             omokIsStart = false;
                         }
                     }
