@@ -58,20 +58,22 @@ public class GoWatingRoomActivity extends AppCompatActivity {
                 {
                     noGameText.setVisibility(View.VISIBLE);
                 }
+                else
+                {
+                    noGameText.setVisibility(View.GONE);
+                }
 
+                // 방나가면 지우는 기능 수정필요함
+                /*
                 for (int i = 0; i < gameModels2.size(); i++) {
                     if (gameModels2.get(i).isBlackOut() && gameModels2.get(i).isWhiteOut()) {
                         String key = gameModels2.get(i).getGameKey();
-                        /*
-                        FirebaseDatabase.getInstance().getReference().child("WatingRoom").child(key)
-                                .removeValue();
-
-                         */
-
                         FirebaseDatabase.getInstance().getReference().child("Game").child(key)
                                 .removeValue();
                     }
                 }
+
+                 */
             }
 
             @Override

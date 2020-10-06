@@ -30,6 +30,42 @@ public class GameModel {
     private int whiteNumOfCount;
     private boolean blackOut;
     private boolean whiteOut;
+    private boolean blackOk;
+    private boolean whiteOk;
+    private String requsetUid;
+    private boolean reject;
+
+    public boolean isReject() {
+        return reject;
+    }
+
+    public void setReject(boolean reject) {
+        this.reject = reject;
+    }
+
+    public String getRequsetUid() {
+        return requsetUid;
+    }
+
+    public void setRequsetUid(String requsetUid) {
+        this.requsetUid = requsetUid;
+    }
+
+    public boolean isBlackOk() {
+        return blackOk;
+    }
+
+    public void setBlackOk(boolean blackOk) {
+        this.blackOk = blackOk;
+    }
+
+    public boolean isWhiteOk() {
+        return whiteOk;
+    }
+
+    public void setWhiteOk(boolean whiteOk) {
+        this.whiteOk = whiteOk;
+    }
 
     public boolean isBlackOut() {
         return blackOut;

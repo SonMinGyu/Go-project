@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     int deathWhiteStones = 0;
     int deathBlackStones = 0;
     boolean isStart = false;
-    boolean fbIsFinish = false;
+    //boolean fbIsFinish = false;
     String stHostName;
     String stParticipantName;
     int numOfPlayer = 1;
@@ -138,6 +138,12 @@ public class MainActivity extends AppCompatActivity {
     DeleteStack inspectionStack;
     double blackHouseCount = 0;
     double whiteHouseCount = 0;
+    boolean whiteOk = false;
+    boolean blackOk = false;
+    String requsetUid = null;
+    boolean firstDialog = true;
+    boolean reject = false;
+    boolean requsetText = true;
 
     //Button button;
     String gameKey;
@@ -305,47 +311,51 @@ public class MainActivity extends AppCompatActivity {
         finishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replayButton.setVisibility(View.VISIBLE);
+                Toast.makeText(getApplicationContext(), "계가를 요청했습니다 잠시만 기다려 주세요.", Toast.LENGTH_SHORT).show();
 
-                offTimer();
-
-                emptyStoneStack = new DeleteStack(19*19);
-                inspectionStack = new DeleteStack(19*19);
-
-                //OutcomeDesicion outcomeDesicion = new OutcomeDesicion();
-                emptySearch(go_points, emptyStoneStack);
-                for(int i = emptyStoneStack.getTop() + 1; i > 0; i--) {
-                    getEmptyStone(go_points, emptyStoneStack, inspectionStack);
-                    countHouse(go_points, inspectionStack);
-                }
-
-                /*
-                if(blackHouseCount == whiteHouseCount)
-                {
-                    Toast.makeText(getApplicationContext(), "비겼습니다!", Toast.LENGTH_SHORT).show();
-                    wincolor = 0;
-                }
-                else if(blackHouseCount > whiteHouseCount)
-                {
-                    Toast.makeText(getApplicationContext(), "흑이 이겼습니다!", Toast.LENGTH_SHORT).show();
-                    wincolor = 1;
+                if(myOrder == 1) {
+                    if (!blackOk)
+                    {
+                        //blackOk = true;
+                        Map<String, Object> taskMap = new HashMap<String, Object>();
+                        taskMap.put("blackOk", true);
+                        taskMap.put("requsetUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
+                                .updateChildren(taskMap);
+                    }
                 }
                 else
                 {
-                    Toast.makeText(getApplicationContext(), "백이 이겼습니다!", Toast.LENGTH_SHORT).show();
-                    wincolor = 2;
+                    if(!whiteOk)
+                    {
+                        //whiteOk = true;
+                        Map<String, Object> taskMap = new HashMap<String, Object>();
+                        taskMap.put("whiteOk", true);
+                        taskMap.put("requsetUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
+                                .updateChildren(taskMap);
+                    }
+                }
+
+                /*
+                if(blackOk && whiteOk) {
+                    replayButton.setVisibility(View.VISIBLE);
+
+                    offTimer();
+
+                    emptyStoneStack = new DeleteStack(19 * 19);
+                    inspectionStack = new DeleteStack(19 * 19);
+
+                    //OutcomeDesicion outcomeDesicion = new OutcomeDesicion();
+                    emptySearch(go_points, emptyStoneStack);
+                    for (int i = emptyStoneStack.getTop() + 1; i > 0; i--) {
+                        getEmptyStone(go_points, emptyStoneStack, inspectionStack);
+                        countHouse(go_points, inspectionStack);
+                    }
                 }
 
                  */
 
-                Map<String, Object> taskMap = new HashMap<String, Object>();
-                taskMap.put("finish", true);
-                //taskMap.put("blackHouse", blackHouseCount);
-                //taskMap.put("whiteHouse", whiteHouseCount);
-                FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey")).updateChildren(taskMap);
-
-                System.out.println("mainmainmain " + Double.toString(blackHouseCount));
-                System.out.println("mainmainmain " + Double.toString(whiteHouseCount));
             }
         });
 
@@ -448,12 +458,16 @@ public class MainActivity extends AppCompatActivity {
                         stBlackTimer = item.getValue(GameModel.class).getBlackTimer();
                         stWhiteTimer = item.getValue(GameModel.class).getWhiteTimer();
                         stHostUid = item.getValue(GameModel.class).getHostUid();
-                        fbIsFinish = item.getValue(GameModel.class).getFinish();
+                        //fbIsFinish = item.getValue(GameModel.class).getFinish();
                         stHostName = item.getValue(GameModel.class).getHostName();
                         stParticipantName = item.getValue(GameModel.class).getParticipantName();
                         numOfPlayer = item.getValue(GameModel.class).getNumberOfUsers();
                         blackNumOfCount = item.getValue(GameModel.class).getBlackNumOfCount();
                         whiteNumOfCount = item.getValue(GameModel.class).getWhiteNumOfCount();
+                        blackOk = item.getValue(GameModel.class).isBlackOk();
+                        whiteOk = item.getValue(GameModel.class).isWhiteOk();
+                        requsetUid = item.getValue(GameModel.class).getRequsetUid();
+                        reject = item.getValue(GameModel.class).isReject();
                         //blackHouseCount = item.getValue(GameModel.class).getBlackHouse();
                         //whiteHouseCount = item.getValue(GameModel.class).getWhiteHouse();
                     }
@@ -462,9 +476,93 @@ public class MainActivity extends AppCompatActivity {
                 hostName.setText("Player1: " + stHostName);
                 participantName.setText("Player2: " + stParticipantName);
 
-                if(fbIsFinish && callFinishFirst)
+                if((blackOk || whiteOk) && firstDialog)
                 {
-                    finishButton.callOnClick();
+                    firstDialog = false;
+
+                    if (!requsetUid.equals(null) && !requsetUid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        final LinearLayout finishLinearLayout = (LinearLayout) View.inflate(MainActivity.this, R.layout.activity_finish_requestment, null);
+                        final AlertDialog.Builder finishCustomDialog = new AlertDialog.Builder(MainActivity.this);
+                        finishCustomDialog.setView(finishLinearLayout)
+                                .setCancelable(false)
+                                .setPositiveButton("수락", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                    }
+                                })
+                                .setNegativeButton("거절", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                    }
+                                });
+                        final AlertDialog finishAlertDialog = finishCustomDialog.create();
+                        finishAlertDialog.show();
+                        finishAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if (myOrder == 1) {
+                                    if (!blackOk) {
+                                        //blackOk = true;
+                                        Map<String, Object> taskMap = new HashMap<String, Object>();
+                                        taskMap.put("blackOk", true);
+                                        FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
+                                                .updateChildren(taskMap);
+                                    }
+                                } else {
+                                    if (!whiteOk) {
+                                        //whiteOk = true;
+                                        Map<String, Object> taskMap = new HashMap<String, Object>();
+                                        taskMap.put("whiteOk", true);
+                                        FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
+                                                .updateChildren(taskMap);
+                                    }
+                                }
+                                finishAlertDialog.dismiss();
+                            }
+                        });
+                        finishAlertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                firstDialog = true;
+                                Map<String, Object> taskMap = new HashMap<String, Object>();
+                                taskMap.put("blackOk", false);
+                                taskMap.put("whiteOk", false);
+                                taskMap.put("reject", true);
+                                FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
+                                        .updateChildren(taskMap);
+                                finishAlertDialog.dismiss();
+                            }
+                        });
+                    }
+                }
+
+                if(reject && requsetUid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                {
+                    Toast.makeText(getApplicationContext(), "상대방이 계가를 거절하였습니다.", Toast.LENGTH_SHORT).show();
+                    Map<String, Object> taskMap = new HashMap<String, Object>();
+                    taskMap.put("reject", false);
+                    FirebaseDatabase.getInstance().getReference().child("Game").child(getIntent().getExtras().getString("gamekey"))
+                            .updateChildren(taskMap);
+                }
+
+                if(blackOk && whiteOk && callFinishFirst)
+                {
+                    //finishButton.callOnClick();
+                    replayButton.setVisibility(View.VISIBLE);
+
+                    offTimer();
+
+                    emptyStoneStack = new DeleteStack(19 * 19);
+                    inspectionStack = new DeleteStack(19 * 19);
+
+                    //OutcomeDesicion outcomeDesicion = new OutcomeDesicion();
+                    emptySearch(go_points, emptyStoneStack);
+                    for (int i = emptyStoneStack.getTop() + 1; i > 0; i--) {
+                        getEmptyStone(go_points, emptyStoneStack, inspectionStack);
+                        countHouse(go_points, inspectionStack);
+                    }
 
                     if((blackHouseCount + deathWhiteStones) == (whiteHouseCount + deathBlackStones))
                     {
@@ -1087,17 +1185,17 @@ public class MainActivity extends AppCompatActivity {
             iv.setOnClickListener(new View.OnClickListener() { // 돌을 놓으려고 클릭 할때 실행
                 @Override
                 public void onClick(View view) {
+                    if (!isStart) // 대국시작을 누르지 않으면 클릭불가(시작안됨)
+                    {
+                        Toast.makeText(getApplicationContext(), "대국이 시작될때 까지 기다려 주세요!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (blackOk && whiteOk) // 계가하면 클릭불가(종료 됨)
+                    {
+                        return;
+                    }
+
                     if(myOrder == order) {
-                        if (!isStart) // 대국시작을 누르지 않으면 클릭불가(시작안됨)
-                        {
-                            return;
-                        }
-
-                        if (fbIsFinish) // 계가하기를 누르면 클릭불가(종료 됨)
-                        {
-                            return;
-                        }
-
                         deleteStack = new DeleteStack(19 * 19);
                         deleteStack1 = new DeleteStack(19 * 19);
                         liveOrDie = new DeleteStack(19 * 19);

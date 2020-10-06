@@ -176,9 +176,6 @@ public class CreateGame extends AppCompatActivity {
                     FirebaseDatabase.getInstance().getReference().child("Game")
                             .child(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay()).setValue(gameModel);
 
-                    FirebaseDatabase.getInstance().getReference().child("WatingRoom")
-                            .child(stGameType + " + " +gameTitle.getText().toString() + " + " + getToDay()).setValue(gameModel);
-
                     Intent gameIntent = new Intent(CreateGame.this, OmokMultiplayActivity.class);
                     gameIntent.putExtra("gamekey", gameModel.getGameKey());
                     gameIntent.putExtra("gameTitle", gameModel.getGameTitle());
